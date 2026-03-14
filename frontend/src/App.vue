@@ -1,11 +1,29 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import JuceControls from './components/JuceControls.vue'
+</script>
 
 <template>
-  <h1>You did it!</h1>
-  <p>
-    Visit <a href="https://vuejs.org/" target="_blank" rel="noopener">vuejs.org</a> to read the
-    documentation
-  </p>
+  <div id="app">
+    <div >
+      LETS GOOO
+    </div>
+    <JuceControls />
+  </div>
 </template>
 
-<style scoped></style>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+#app {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  padding: 1rem;
+}
+</style>
