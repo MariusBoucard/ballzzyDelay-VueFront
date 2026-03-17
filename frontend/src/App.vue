@@ -44,6 +44,14 @@ import BottomSection from './components/BottomSection.vue'
 </template>
 
 <style>
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -51,7 +59,8 @@ import BottomSection from './components/BottomSection.vue'
 }
 
 #app {
-  min-height: 100vh;
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
@@ -60,8 +69,8 @@ import BottomSection from './components/BottomSection.vue'
 .main-container {
   flex: 1;
   display: flex;
-  gap: 1rem;
-  padding: 1rem;
+  gap: 4px;
+  padding: 4px;
   overflow-x: auto;
   align-items: stretch;
 }
@@ -70,6 +79,8 @@ import BottomSection from './components/BottomSection.vue'
   display: flex;
   flex-direction: column;
   min-width: 0;
+  min-height: 0;
+  flex: 1;
 }
 
 .input-section {

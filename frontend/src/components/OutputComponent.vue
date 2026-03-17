@@ -20,23 +20,24 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 12px;
+  padding: 6px;
   background: linear-gradient(135deg, #2a2d3a 0%, #1f2129 100%);
-  border-radius: 8px;
+  border-radius: 4px;
   border: 1px solid #444;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
   color: #e0e0e0;
 }
 
 .output-header {
   text-align: center;
-  padding-bottom: 12px;
+  padding-bottom: 4px;
   border-bottom: 1px solid #444;
+  flex-shrink: 0;
 }
 
 .output-header h3 {
   margin: 0;
-  font-size: 16px;
+  font-size: 11px;
   font-weight: 600;
   color: #4a9eff;
 }
@@ -46,12 +47,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem 0;
+  padding: 4px 0;
 }
 
 .output-content p {
   margin: 0;
-  font-size: 12px;
+  font-size: 10px;
   color: #999;
 }
 </style>

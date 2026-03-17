@@ -16,13 +16,14 @@
 <style scoped>
 .bottom-section {
   width: 100%;
-  height: 70px;
+  height: 35px;
   background: linear-gradient(135deg, #1a1d2e 0%, #16192b 100%);
-  border-top: 2px solid #4a9eff;
-  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.4);
+  border-top: 1px solid #4a9eff;
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
-  padding: 0 2rem;
+  padding: 0 8px;
+  flex-shrink: 0;
 }
 
 .bottom-content {
@@ -34,13 +35,16 @@
 
 .bottom-content p {
   margin: 0;
-  font-size: 12px;
+  font-size: 10px;
   color: #999;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .bottom-controls {
   display: flex;
-  gap: 1rem;
+  gap: 6px;
   align-items: center;
 }
 </style>

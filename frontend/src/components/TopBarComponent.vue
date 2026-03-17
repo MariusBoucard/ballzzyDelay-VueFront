@@ -18,13 +18,14 @@ const { initData } = useJuce()
 <style scoped>
 .topbar {
   width: 100%;
-  height: 60px;
+  height: 35px;
   background: linear-gradient(135deg, #1a1d2e 0%, #16192b 100%);
-  border-bottom: 2px solid #4a9eff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  border-bottom: 1px solid #4a9eff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
-  padding: 0 2rem;
+  padding: 0 8px;
+  flex-shrink: 0;
 }
 
 .topbar-content {
@@ -36,15 +37,18 @@ const { initData } = useJuce()
 
 .app-title {
   margin: 0;
-  font-size: 24px;
+  font-size: 13px;
   font-weight: 700;
   color: #e0e0e0;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .topbar-controls {
   display: flex;
-  gap: 1rem;
+  gap: 6px;
   align-items: center;
 }
 </style>

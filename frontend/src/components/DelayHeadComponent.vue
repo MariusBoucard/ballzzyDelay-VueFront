@@ -153,29 +153,31 @@ const lpSlave = computed(() => getToggle(getParam('LP_SLAVE')))
 
 <style scoped>
 .delay-head-container {
-  width: 200px;
-  min-height: 800px;
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 12px;
+  gap: 4px;
+  padding: 6px;
   background: linear-gradient(135deg, #2a2d3a 0%, #1f2129 100%);
-  border-radius: 8px;
+  border-radius: 4px;
   border: 1px solid #444;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: #e0e0e0;
+  overflow-y: auto;
 }
 
 .head-header {
   text-align: center;
-  padding-bottom: 8px;
+  padding-bottom: 4px;
   border-bottom: 1px solid #444;
+  flex-shrink: 0;
 }
 
 .head-header h3 {
   margin: 0;
-  font-size: 14px;
+  font-size: 11px;
   font-weight: 600;
   color: #4a9eff;
 }
@@ -183,7 +185,8 @@ const lpSlave = computed(() => getToggle(getParam('LP_SLAVE')))
 .section {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 3px;
+  flex-shrink: 0;
 }
 
 .bypass-section {
@@ -193,27 +196,28 @@ const lpSlave = computed(() => getToggle(getParam('LP_SLAVE')))
 .toggle-label {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 10px;
   font-weight: 500;
   user-select: none;
 }
 
 .toggle-label input {
-  width: 18px;
-  height: 18px;
+  width: 14px;
+  height: 14px;
   cursor: pointer;
   accent-color: #4a9eff;
+  flex-shrink: 0;
 }
 
 .pan-section {
   align-items: center;
-  gap: 8px;
+  gap: 3px;
 }
 
 .pan-section label {
-  font-size: 13px;
+  font-size: 10px;
   font-weight: 600;
   color: #4a9eff;
   text-align: center;
@@ -222,18 +226,18 @@ const lpSlave = computed(() => getToggle(getParam('LP_SLAVE')))
 .split-section {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 4px;
 }
 
 .split-control {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
   min-width: 0;
 }
 
 .split-control label {
-  font-size: 12px;
+  font-size: 9px;
   font-weight: 600;
   color: #999;
   text-align: center;
@@ -241,78 +245,79 @@ const lpSlave = computed(() => getToggle(getParam('LP_SLAVE')))
 
 .gain-section {
   align-items: center;
-  gap: 8px;
+  gap: 3px;
 }
 
 .gain-section label {
-  font-size: 13px;
+  font-size: 10px;
   font-weight: 600;
   color: #4a9eff;
   text-align: center;
 }
 
 label {
-  font-size: 12px;
+  font-size: 9px;
   font-weight: 500;
   color: #999;
 }
 
 .slider-large {
   width: 100%;
-  height: 24px;
+  height: 12px;
   cursor: pointer;
   accent-color: #4a9eff;
 }
 
 .slider-medium {
   width: 100%;
-  height: 20px;
+  height: 10px;
   cursor: pointer;
   accent-color: #4a9eff;
 }
 
 .slider-small {
   width: 100%;
-  height: 16px;
+  height: 8px;
   cursor: pointer;
   accent-color: #4a9eff;
 }
 
 .value-display {
-  font-size: 11px;
+  font-size: 8px;
   color: #888;
   text-align: center;
   font-weight: 500;
 }
 
 .separator {
-  height: 2px;
+  height: 1px;
   background: linear-gradient(90deg, transparent, #444, transparent);
-  margin: 8px 0;
+  margin: 3px 0;
+  flex-shrink: 0;
 }
 
 .filter-section {
-  gap: 10px;
+  gap: 4px;
 }
 
 .filter-button-group {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 4px;
 }
 
 .filter-button {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  padding: 10px 8px;
+  gap: 2px;
+  padding: 4px 4px;
   background: linear-gradient(135deg, #3a3d4a 0%, #2a2d3a 100%);
   border: 1px solid #555;
-  border-radius: 6px;
+  border-radius: 3px;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-size: 11px;
+  font-size: 8px;
   font-weight: 600;
   color: #ccc;
 }
@@ -328,20 +333,21 @@ label {
 }
 
 .button-label {
-  font-size: 11px;
+  font-size: 8px;
   font-weight: 600;
   color: #4a9eff;
+  white-space: nowrap;
 }
 
 .filter-slider {
-  width: 90%;
-  height: 14px;
+  width: 85%;
+  height: 6px;
   cursor: pointer;
   accent-color: #4a9eff;
 }
 
 .button-value {
-  font-size: 10px;
+  font-size: 7px;
   color: #888;
 }
 </style>
