@@ -91,7 +91,7 @@ body {
 .head-2,
 .head-3,
 .head-4 {
-  flex: 0 0 16%;
+  flex: 0 0 19.3%;
 }
 
 .output-section {

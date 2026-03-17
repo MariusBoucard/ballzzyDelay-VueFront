@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useJuce } from '@/composables/useJuce'
 import { computed } from 'vue'
+import HeadFunctionComponent from './HeadFunctionComponent.vue'
 
 interface Props {
   headName: string
@@ -147,6 +148,11 @@ const lpSlave = computed(() => getToggle(getParam('LP_SLAVE')))
           <div class="button-value">{{ hpFilterFreq.state.normalised.toFixed(2) }}</div>
         </button>
       </div>
+    </div>
+
+    <!-- Head Function Component -->
+    <div class="section function-section">
+      <HeadFunctionComponent :headName="headName" />
     </div>
   </div>
 </template>
@@ -349,5 +355,11 @@ label {
 .button-value {
   font-size: 7px;
   color: #888;
+}
+
+.function-section {
+  gap: 3px;
+  flex: 1;
+  min-height: 0;
 }
 </style>

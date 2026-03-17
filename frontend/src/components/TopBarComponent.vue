@@ -1,18 +1,38 @@
 <script setup lang="ts">
 import { useJuce } from '@/composables/useJuce'
+import { ref } from 'vue'
+import AboutModal from './AboutModal.vue'
+import SettingsModal from './SettingsModal.vue'
+import PresetManagerComponent from './PresetManagerComponent.vue'
 
 const { initData } = useJuce()
+const showAboutModal = ref(false)
+const showSettingsModal = ref(false)
 </script>
 
 <template>
   <div class="topbar">
-    <div class="topbar-content">
-      <h1 class="app-title">{{ initData?.pluginName || 'Delay Vue' }}</h1>
-      <div class="topbar-controls">
-        <!-- Add any topbar controls here -->
-      </div>
+    <div class="topbar-left">
+      <button class="btn-about" @click="showAboutModal = true">
+        <span class="btn-icon">ℹ</span>
+        <span class="btn-text">About</span>
+      </button>
+      <PresetManagerComponent />
+    </div>
+
+    <div class="topbar-center">
+      <h1 class="app-title">{{ initData?.pluginName?.replace(/[\[\]]/g, '')?.trim() || 'Delay Vue' }}</h1>
+    </div>
+
+    <div class="topbar-right">
+      <button class="btn-settings" @click="showSettingsModal = true">
+        <span class="settings-icon">⚙</span>
+      </button>
     </div>
   </div>
+
+  <AboutModal :isOpen="showAboutModal" @close="showAboutModal = false" />
+  <SettingsModal :isOpen="showSettingsModal" @close="showSettingsModal = false" />
 </template>
 
 <style scoped>
@@ -24,15 +44,66 @@ const { initData } = useJuce()
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 0 8px;
+  flex-shrink: 0;
+  gap: 8px;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   flex-shrink: 0;
 }
 
-.topbar-content {
-  width: 100%;
+.topbar-center {
+  flex: 1;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: center;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.btn-about {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  background: rgba(74, 158, 255, 0.1);
+  border: 1px solid rgba(74, 158, 255, 0.3);
+  border-radius: 6px;
+  color: #e0e0e0;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+  white-space: nowrap;
+}
+
+.btn-about:hover {
+  background: rgba(74, 158, 255, 0.15);
+  border-color: rgba(74, 158, 255, 0.5);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(74, 158, 255, 0.2);
+}
+
+.btn-about:active {
+  transform: translateY(0);
+}
+
+.btn-icon {
+  font-size: 12px;
+}
+
+.btn-text {
+  white-space: nowrap;
 }
 
 .app-title {
@@ -46,9 +117,37 @@ const { initData } = useJuce()
   text-overflow: ellipsis;
 }
 
-.topbar-controls {
+.btn-settings {
   display: flex;
-  gap: 6px;
   align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: rgba(74, 158, 255, 0.1);
+  border: 1px solid rgba(74, 158, 255, 0.3);
+  border-radius: 6px;
+  color: #e0e0e0;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.btn-settings:hover {
+  background: rgba(74, 158, 255, 0.15);
+  border-color: rgba(74, 158, 255, 0.5);
+  transform: translateY(-1px) rotate(15deg);
+  box-shadow: 0 4px 12px rgba(74, 158, 255, 0.2);
+}
+
+.btn-settings:active {
+  transform: translateY(0) rotate(0deg);
+}
+
+.settings-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>
