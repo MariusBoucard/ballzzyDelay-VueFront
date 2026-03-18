@@ -6,21 +6,28 @@ import RotaryKnob from './RotaryKnob.vue'
 const { getSlider, getToggle } = useJuce()
 
 // Get global controls
-const sync = computed(() => getToggle('SYNC'))
-const globalPan = computed(() => getSlider('PAN'))
+const sync = computed(() => getToggle('SYNC_TEMPO'))
+const globalWidth = computed(() => getSlider('WIDTH'))
+const globalTime = computed(() => getSlider('TIME'))
+
 const globalFeedback = computed(() => getSlider('FEEDBACK'))
-const globalTime = computed(() => getSlider('MOVEMENT_PERIOD_DURATION'))
+// Cold be great to have period duration as a global control too, but we can add it later if needed
+const globalPeriodDuration = computed(() => getSlider('MOVEMENT_PERIOD_DURATION'))
+
 const globalMix = computed(() => getSlider('MIX'))
 const globalLpFilter = computed(() => getSlider('LP_FILTER_FREQ'))
 const globalHpFilter = computed(() => getSlider('HP_FILTER_FREQ'))
-const ducking = computed(() => getSlider('DUCKING'))
 
-// Mode selection (local state - you can integrate with JUCE if needed)
+// Ducking controls
+const ducking = computed(() => getToggle('DUCKING'))
+const duckingAttack = computed(() => getSlider('DUCKING_ATTACK'))
+const duckingRelease = computed(() => getSlider('DUCKING_RELEASE'))
+const duckingThreshold = computed(() => getSlider('DUCKING_THRESHOLD'))
+
 const selectedMode = ref('normal')
 
 const setMode = (mode: string) => {
   selectedMode.value = mode
-  // You can add JUCE integration here if needed
 }
 </script>
 
@@ -39,12 +46,11 @@ const setMode = (mode: string) => {
       </label>
     </div>
 
-    <!-- PAN Knob -->
     <div class="control-group">
       <RotaryKnob
-        :model-value="globalPan.state.normalised"
-        @update:model-value="globalPan.setNormalisedValue"
-        label="Pan"
+        :model-value="globalWidth.state.normalised"
+        @update:model-value="globalWidth.setNormalisedValue"
+        label="Width"
         size="small"
       />
     </div>
@@ -62,7 +68,7 @@ const setMode = (mode: string) => {
         @update:model-value="globalTime.setNormalisedValue"
         label="Time"
         size="small"
-      />
+      />  
     </div>
 
     <!-- Center: Global MIX Knob -->
@@ -91,14 +97,40 @@ const setMode = (mode: string) => {
       />
     </div>
 
-    <!-- Ducking Knob -->
-    <div class="control-group">
-      <RotaryKnob
-        :model-value="ducking.state.normalised"
-        @update:model-value="ducking.setNormalisedValue"
-        label="Ducking"
-        size="small"
-      />
+    <!-- Ducking Card: Toggle + 3 Rotary Knobs -->
+    <div class="ducking-card">
+      <div class="ducking-header">
+        <label class="ducking-toggle-label">
+          <input 
+            type="checkbox" 
+            class="ducking-toggle"
+            :checked="ducking.isActive()" 
+            @change="e => ducking.setNormalisedValue((e.target as HTMLInputElement).checked ? 1 : 0)"
+          />
+          <span>DUCKING</span>
+        </label>
+      </div>
+      
+      <div class="ducking-knobs">
+        <RotaryKnob
+          :model-value="duckingAttack.state.normalised"
+          @update:model-value="duckingAttack.setNormalisedValue"
+          label="Attack"
+          size="small"
+        />
+        <RotaryKnob
+          :model-value="duckingRelease.state.normalised"
+          @update:model-value="duckingRelease.setNormalisedValue"
+          label="Release"
+          size="small"
+        />
+        <RotaryKnob
+          :model-value="duckingThreshold.state.normalised"
+          @update:model-value="duckingThreshold.setNormalisedValue"
+          label="Threshold"
+          size="small"
+        />
+      </div>
     </div>
 
     <!-- Right: Mode Selection (3D Radio Buttons) -->
@@ -336,5 +368,130 @@ const setMode = (mode: string) => {
   box-shadow: 
     0 1px 0 var(--metal-dark),
     inset 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Ducking 3D Card */
+.ducking-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: 1.2;
+  height: 100%;
+  padding: 8px 12px;
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.15) 0%, rgba(0, 212, 255, 0.08) 100%);
+  border: 1px solid rgba(74, 158, 255, 0.3);
+  border-radius: 8px;
+  box-shadow: 
+    0 8px 16px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 0 20px rgba(74, 158, 255, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.ducking-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, transparent 0%, rgba(0, 212, 255, 0.05) 100%);
+  pointer-events: none;
+}
+
+.ducking-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.ducking-toggle-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  font-size: 8px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  user-select: none;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ducking-toggle-label:hover {
+  color: var(--primary-cyan);
+}
+
+.ducking-toggle {
+  appearance: none;
+  width: 40px;
+  height: 20px;
+  background: var(--metal-dark);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 
+    inset 0 2px 4px rgba(0, 0, 0, 0.5),
+    0 0 8px rgba(0, 0, 0, 0.3);
+}
+
+.ducking-toggle::before {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  background: linear-gradient(145deg, var(--metal-lighter), var(--metal-light));
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ducking-toggle:checked {
+  background: linear-gradient(90deg, var(--primary-blue), var(--primary-cyan));
+  border-color: var(--primary-cyan);
+  box-shadow: 
+    inset 0 2px 4px rgba(0, 0, 0, 0.3),
+    0 0 12px var(--blue-glow);
+}
+
+.ducking-toggle:checked::before {
+  left: 22px;
+  background: linear-gradient(145deg, #ffffff, #e8eaed);
+  box-shadow: 
+    0 2px 6px rgba(0, 0, 0, 0.4),
+    0 0 8px rgba(0, 212, 255, 0.6);
+}
+
+.ducking-toggle:hover:not(:checked)::before {
+  background: linear-gradient(145deg, var(--metal-lighter), var(--metal-medium));
+}
+
+.ducking-knobs {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  flex: 1;
+  width: 100%;
+}
+
+.ducking-knobs > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
 }
 </style>

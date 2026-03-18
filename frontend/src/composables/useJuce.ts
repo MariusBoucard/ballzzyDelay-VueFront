@@ -58,6 +58,9 @@ export function useJuce() {
       return {
         state: sliders.get(paramId)!,
         setNormalisedValue: (v: number) => {
+          console.log("paramId",paramId,
+            "set to",v
+          );
           const s = sliders.get(paramId);
           if (s) s.normalised = s.value = v;
         }

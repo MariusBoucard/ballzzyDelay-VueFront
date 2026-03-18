@@ -28,9 +28,13 @@ const startValue = ref(0)
 
 // Size configurations
 const sizeConfig = {
-  small: { size: 50, ringWidth: 4 },
+  /*small: { size: 50, ringWidth: 4 },
   medium: { size: 70, ringWidth: 5 },
-  large: { size: 90, ringWidth: 6 }
+  large: { size: 90, ringWidth: 6 }*/
+
+   small: { size: 30, ringWidth: 4 },
+  medium: { size: 50, ringWidth: 5 },
+  large: { size: 70, ringWidth: 6 }
 }
 
 const config = computed(() => sizeConfig[props.size])
@@ -61,6 +65,7 @@ const handleMouseDown = (e: MouseEvent) => {
   isDragging.value = true
   startY.value = e.clientY
   startValue.value = props.modelValue
+  console.log("Mouse down on knob, starting value:", startValue.value)
   document.addEventListener('mousemove', handleMouseMove)
   document.addEventListener('mouseup', handleMouseUp)
   e.preventDefault()
@@ -75,7 +80,7 @@ const handleMouseMove = (e: MouseEvent) => {
   
   // Clamp between 0 and 1
   newValue = Math.max(0, Math.min(1, newValue))
-  
+  console.log("Mouse move, deltaY:", deltaY, "new value:", newValue)
   emit('update:modelValue', newValue)
 }
 
@@ -157,7 +162,7 @@ const displayValue = computed(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 3px;
   user-select: none;
 }
 
@@ -244,7 +249,7 @@ const displayValue = computed(() => {
   top: 8%;
   left: 50%;
   transform: translateX(-50%);
-  width: 8px;
+  width: 8px; 
   height: 8px;
   background: radial-gradient(circle, var(--primary-cyan), var(--primary-blue));
   border-radius: 50%;

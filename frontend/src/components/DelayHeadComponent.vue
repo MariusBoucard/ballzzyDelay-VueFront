@@ -40,20 +40,17 @@ const lpSlave = computed(() => getToggle(getParam('LP_SLAVE')))
     <!-- Header with head name -->
     <div class="head-header">
       <h3>{{ headName }}</h3>
+      <div class="section bypass-section">
+        <label class="toggle-label">
+          <span>Bypass</span>
+          <input 
+            type="checkbox" 
+            :checked="bypass.isActive()" 
+            @change="e => bypass.toggle((e.target as HTMLInputElement).checked)"
+          />
+        </label>
+      </div>
     </div>
-
-    <!-- Bypass Toggle - Top -->
-    <div class="section bypass-section">
-      <label class="toggle-label">
-        <input 
-          type="checkbox" 
-          :checked="bypass.isActive()" 
-          @change="e => bypass.toggle((e.target as HTMLInputElement).checked)"
-        />
-        <span>Bypass</span>
-      </label>
-    </div>
-
     <!-- Pan Knob -->
     <div class="section pan-section">
       <RotaryKnob
@@ -93,11 +90,11 @@ const lpSlave = computed(() => getToggle(getParam('LP_SLAVE')))
     <!-- Separator -->
     <div class="separator"></div>
 
-    <!-- Filter Buttons Section -->
+    <!-- Filter Section -->
     <div class="section filter-section">
-      <div class="filter-button-group">
-        <button class="filter-button">
-          <div class="button-label">LP Filter</div>
+      <div class="filter-row">
+        <label class="filter-label">LP</label>
+        <div class="slider-container">
           <input 
             type="range" 
             min="0" 
@@ -106,12 +103,15 @@ const lpSlave = computed(() => getToggle(getParam('LP_SLAVE')))
             class="filter-slider"
             :value="lpFilterFreq.state.normalised"
             @input="e => lpFilterFreq.setNormalisedValue(Number((e.target as HTMLInputElement).value))"
+            :style="{ '--fill-percent': (lpFilterFreq.state.normalised * 100) + '%' }"
           />
-          <div class="button-value">{{ lpFilterFreq.state.normalised.toFixed(2) }}</div>
-        </button>
+        </div>
+        <span class="slider-value">{{ (lpFilterFreq.state.normalised * 100).toFixed(0) }}</span>
+      </div>
 
-        <button class="filter-button">
-          <div class="button-label">HP Filter</div>
+      <div class="filter-row">
+        <label class="filter-label">HP</label>
+        <div class="slider-container">
           <input 
             type="range" 
             min="0" 
@@ -120,9 +120,10 @@ const lpSlave = computed(() => getToggle(getParam('LP_SLAVE')))
             class="filter-slider"
             :value="hpFilterFreq.state.normalised"
             @input="e => hpFilterFreq.setNormalisedValue(Number((e.target as HTMLInputElement).value))"
+            :style="{ '--fill-percent': (hpFilterFreq.state.normalised * 100) + '%' }"
           />
-          <div class="button-value">{{ hpFilterFreq.state.normalised.toFixed(2) }}</div>
-        </button>
+        </div>
+        <span class="slider-value">{{ (hpFilterFreq.state.normalised * 100).toFixed(0) }}</span>
       </div>
     </div>
 
@@ -185,7 +186,7 @@ const lpSlave = computed(() => getToggle(getParam('LP_SLAVE')))
     var(--shadow-deep);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
   color: var(--text-primary);
-  overflow-y: auto;
+  overflow-y: hidden;
   position: relative;
 }
 
@@ -193,10 +194,13 @@ const lpSlave = computed(() => getToggle(getParam('LP_SLAVE')))
    Header
    ============================================ */
 .head-header {
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding-bottom: 8px;
   border-bottom: 1px solid rgba(74, 158, 255, 0.15);
   flex-shrink: 0;
+  gap: 12px;
 }
 
 .head-header h3 {
@@ -207,6 +211,17 @@ const lpSlave = computed(() => getToggle(getParam('LP_SLAVE')))
   text-shadow: 0 0 10px var(--cyan-glow);
   letter-spacing: 1px;
   text-transform: uppercase;
+  flex: 1;
+  text-align: center;
+}
+
+.bypass-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  flex-shrink: 0;
 }
 
 /* ============================================
@@ -226,13 +241,15 @@ const lpSlave = computed(() => getToggle(getParam('LP_SLAVE')))
 .pan-section,
 .gain-section {
   align-items: center;
+  transform: translateY(-10px);
   gap: 8px;
 }
 
 .split-section {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 40px;
+  transform: translateX(-10px) translateY(-15px);
   align-items: center;
   justify-items: center;
 }
@@ -242,6 +259,7 @@ const lpSlave = computed(() => getToggle(getParam('LP_SLAVE')))
    ============================================ */
 .toggle-label {
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 10px;
   cursor: pointer;
@@ -258,8 +276,8 @@ const lpSlave = computed(() => getToggle(getParam('LP_SLAVE')))
 
 .toggle-label input {
   appearance: none;
-  width: 48px;
-  height: 24px;
+  width: 24px;
+  height: 12px;
   background: var(--metal-dark);
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -272,11 +290,11 @@ const lpSlave = computed(() => getToggle(getParam('LP_SLAVE')))
 .toggle-label input::before {
   content: '';
   position: absolute;
-  width: 18px;
-  height: 18px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
-  top: 2px;
-  left: 2px;
+  top: 0.4px;
+  left: 1px;
   background: linear-gradient(145deg, var(--metal-lighter), var(--metal-light));
   box-shadow: 
     0 2px 4px rgba(0, 0, 0, 0.3),
@@ -289,11 +307,11 @@ const lpSlave = computed(() => getToggle(getParam('LP_SLAVE')))
   border-color: var(--primary-cyan);
   box-shadow: 
     var(--inset-shadow),
-    0 0 12px var(--blue-glow);
+    0 0 6px var(--blue-glow);
 }
 
 .toggle-label input:checked::before {
-  left: 26px;
+  left: 13px;
   background: linear-gradient(145deg, #ffffff, #e8eaed);
   box-shadow: 
     0 2px 6px rgba(0, 0, 0, 0.4),
@@ -319,113 +337,106 @@ const lpSlave = computed(() => getToggle(getParam('LP_SLAVE')))
 }
 
 /* ============================================
-   Modern Filter Buttons with Sliders
+   Modern Filter Sliders - Full Width Stacked
    ============================================ */
 .filter-section {
   gap: 8px;
+  width: 100%;
 }
 
-.filter-button-group {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-
-.filter-button {
+.filter-row {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 6px;
-  padding: 10px 8px;
-  background: linear-gradient(145deg, var(--metal-light), var(--metal-dark));
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 
-    var(--inset-shadow),
-    var(--shadow-soft);
+  gap: 8px;
+  width: 100%;
 }
 
-.filter-button:hover {
-  background: linear-gradient(145deg, var(--metal-lighter), var(--metal-medium));
-  border-color: rgba(74, 158, 255, 0.3);
-  box-shadow: 
-    var(--inset-shadow),
-    0 0 8px rgba(74, 158, 255, 0.2);
-}
-
-.filter-button:active {
-  transform: scale(0.98);
-}
-
-.button-label {
+.filter-label {
   font-size: 9px;
-  font-weight: 600;
-  color: var(--primary-cyan);
+  font-weight: 700;
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  text-shadow: 0 0 6px var(--cyan-glow);
+  min-width: 16px;
+  text-align: center;
+}
+
+.slider-value {
+  font-size: 8px;
+  font-weight: 600;
+  color: var(--primary-cyan);
+  min-width: 24px;
+  text-align: right;
+  font-family: 'Courier New', monospace;
+  text-shadow: 0 0 4px var(--blue-glow);
+}
+
+.slider-container {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
 .filter-slider {
-  width: 90%;
-  height: 4px;
-  -webkit-appearance: none;
+  --fill-percent: 0%;
   appearance: none;
-  background: var(--metal-dark);
-  border-radius: 2px;
-  outline: none;
+  width: 100%;
+  height: 6px;
+  background: linear-gradient(90deg,
+    var(--primary-blue) 0%,
+    var(--primary-blue) var(--fill-percent),
+    var(--metal-dark) var(--fill-percent),
+    var(--metal-dark) 100%
+  );
+  border-radius: 3px;
+  border: 1px solid rgba(74, 158, 255, 0.2);
   cursor: pointer;
-  box-shadow: var(--inset-shadow);
+  outline: none;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.filter-slider:hover {
+  border-color: rgba(74, 158, 255, 0.4);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4), 0 0 6px rgba(74, 158, 255, 0.15);
 }
 
 .filter-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: linear-gradient(145deg, var(--primary-cyan), var(--primary-blue));
+  width: 10px;
+  height: 16px;
+  background: linear-gradient(90deg, var(--primary-cyan) 0%, var(--primary-blue) 100%);
+  border: 1px solid rgba(0, 212, 255, 0.6);
   cursor: pointer;
-  box-shadow: 
-    0 2px 4px rgba(0, 0, 0, 0.4),
-    0 0 8px var(--blue-glow);
-  transition: all 0.2s ease;
+  box-shadow: 0 0 8px var(--blue-glow);
+  position: relative;
 }
 
 .filter-slider::-webkit-slider-thumb:hover {
-  transform: scale(1.1);
-  box-shadow: 
-    0 2px 6px rgba(0, 0, 0, 0.5),
-    0 0 12px var(--cyan-glow);
+  box-shadow: 0 0 12px var(--blue-glow), 0 0 20px rgba(74, 158, 255, 0.4);
+  background: linear-gradient(90deg, #00ffff 0%, var(--primary-cyan) 100%);
 }
 
 .filter-slider::-moz-range-thumb {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: linear-gradient(145deg, var(--primary-cyan), var(--primary-blue));
+  width: 10px;
+  height: 16px;
+  background: linear-gradient(90deg, var(--primary-cyan) 0%, var(--primary-blue) 100%);
+  border: 1px solid rgba(0, 212, 255, 0.6);
   cursor: pointer;
-  border: none;
-  box-shadow: 
-    0 2px 4px rgba(0, 0, 0, 0.4),
-    0 0 8px var(--blue-glow);
-  transition: all 0.2s ease;
+  box-shadow: 0 0 8px var(--blue-glow);
+  position: relative;
 }
 
 .filter-slider::-moz-range-thumb:hover {
-  transform: scale(1.1);
-  box-shadow: 
-    0 2px 6px rgba(0, 0, 0, 0.5),
-    0 0 12px var(--cyan-glow);
+  box-shadow: 0 0 12px var(--blue-glow), 0 0 20px rgba(74, 158, 255, 0.4);
+  background: linear-gradient(90deg, #00ffff 0%, var(--primary-cyan) 100%);
 }
 
-.button-value {
-  font-size: 8px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  font-family: 'Courier New', monospace;
+.filter-slider::-moz-range-track {
+  background: transparent;
+  border: none;
 }
 
 /* ============================================
