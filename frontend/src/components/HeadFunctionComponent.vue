@@ -152,10 +152,23 @@ const handleFunctionChange = () => {
 </template>
 
 <style scoped>
+:root {
+  --primary-color: #4a9eff;
+  --primary-dark: #357abd;
+  --primary-light: #6db3ff;
+  --text-primary: #e0e0e0;
+  --text-secondary: #999;
+  --border-color: #444;
+}
+
 .head-function-container {
   display: flex;
   flex-direction: column;
   gap: 3px;
+  padding: 4px;
+  background: linear-gradient(135deg, rgba(42, 45, 58, 0.5), rgba(31, 33, 41, 0.5));
+  border: 1px solid rgba(74, 158, 255, 0.15);
+  border-radius: 4px;
 }
 
 .function-header {
@@ -166,25 +179,34 @@ const handleFunctionChange = () => {
 
 .function-select {
   flex: 1;
-  padding: 3px 4px;
+  padding: 4px 6px;
   background: linear-gradient(135deg, #3a3d4a 0%, #2a2d3a 100%);
-  border: 1px solid #555;
+  border: 1px solid rgba(74, 158, 255, 0.3);
   border-radius: 3px;
-  color: #e0e0e0;
+  color: var(--text-primary);
   font-size: 8px;
   font-weight: 600;
   cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.function-select:hover {
+  border-color: var(--primary-color);
+  background: linear-gradient(135deg, #4a4d5a 0%, #3a3d4a 100%);
 }
 
 .function-select:focus {
   outline: none;
-  border-color: #4a9eff;
-  box-shadow: 0 0 4px rgba(74, 158, 255, 0.3);
+  border-color: var(--primary-color);
+  box-shadow: 
+    inset 0 1px 2px rgba(0, 0, 0, 0.3),
+    0 0 6px rgba(74, 158, 255, 0.3);
 }
 
 .function-select option {
   background: #2a2d3a;
-  color: #e0e0e0;
+  color: var(--text-primary);
 }
 
 .toggle-label {
@@ -194,26 +216,37 @@ const handleFunctionChange = () => {
   cursor: pointer;
   font-size: 8px;
   font-weight: 600;
-  color: #4a9eff;
+  color: var(--primary-color);
   user-select: none;
   white-space: nowrap;
 }
 
 .toggle-label input {
-  width: 10px;
-  height: 10px;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  background: linear-gradient(135deg, #2a2d3a 0%, #1f2129 100%);
   cursor: pointer;
-  accent-color: #4a9eff;
-  flex-shrink: 0;
+  transition: all 0.2s ease;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.5);
+}
+
+.toggle-label input:checked {
+  background: radial-gradient(circle at 30% 30%, rgba(46, 204, 113, 0.3), rgba(46, 204, 113, 0.1));
+  border-color: #2ecc71;
+  box-shadow: 0 0 6px rgba(46, 204, 113, 0.4);
 }
 
 .function-canvas {
   width: 100%;
   height: 80px;
-  background: #1f2129;
-  border: 1px solid #444;
+  background: linear-gradient(135deg, #1f2129 0%, #16192b 100%);
+  border: 1px solid rgba(74, 158, 255, 0.2);
   border-radius: 3px;
   display: block;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 .width-control {
@@ -226,19 +259,89 @@ const handleFunctionChange = () => {
 .width-control label {
   font-size: 8px;
   font-weight: 600;
-  color: #999;
+  color: var(--text-secondary);
+  text-transform: uppercase;
 }
 
 .slider-width {
+  appearance: none;
   width: 100%;
-  height: 8px;
+  height: 12px;
   cursor: pointer;
-  accent-color: #4a9eff;
+  background: transparent;
+  border: none;
+  padding: 0;
+  accent-color: var(--primary-color);
+}
+
+/* Glowy width slider - WebKit */
+.slider-width::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, rgba(109, 179, 255, 0.8), var(--primary-color));
+  border: 2px solid var(--primary-light);
+  cursor: pointer;
+  box-shadow: 
+    0 0 12px rgba(74, 158, 255, 0.6),
+    0 0 24px rgba(74, 158, 255, 0.3),
+    inset 0 1px 2px rgba(255, 255, 255, 0.2),
+    0 2px 4px rgba(0, 0, 0, 0.5);
+  transition: all 0.2s ease;
+}
+
+.slider-width::-webkit-slider-thumb:active {
+  transform: scale(1.15);
+  box-shadow: 
+    0 0 16px rgba(74, 158, 255, 0.8),
+    0 0 32px rgba(74, 158, 255, 0.5),
+    inset 0 1px 2px rgba(255, 255, 255, 0.2),
+    0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.slider-width::-webkit-slider-runnable-track {
+  background: linear-gradient(90deg, 
+    rgba(74, 158, 255, 0.15) 0%,
+    rgba(74, 158, 255, 0.3) 50%,
+    rgba(74, 158, 255, 0.15) 100%);
+  height: 100%;
+  border-radius: 4px;
+  box-shadow: 
+    inset 0 1px 2px rgba(0, 0, 0, 0.3),
+    0 0 8px rgba(74, 158, 255, 0.2);
+}
+
+/* Glowy width slider - Firefox */
+.slider-width::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, rgba(109, 179, 255, 0.8), var(--primary-color));
+  border: 2px solid var(--primary-light);
+  cursor: pointer;
+  box-shadow: 
+    0 0 12px rgba(74, 158, 255, 0.6),
+    0 0 24px rgba(74, 158, 255, 0.3),
+    inset 0 1px 2px rgba(255, 255, 255, 0.2),
+    0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.slider-width::-moz-range-track {
+  background: linear-gradient(90deg, 
+    rgba(74, 158, 255, 0.15) 0%,
+    rgba(74, 158, 255, 0.3) 50%,
+    rgba(74, 158, 255, 0.15) 100%);
+  border-radius: 4px;
+  border: none;
+  box-shadow: 
+    inset 0 1px 2px rgba(0, 0, 0, 0.3),
+    0 0 8px rgba(74, 158, 255, 0.2);
 }
 
 .value-display {
   font-size: 7px;
-  color: #888;
+  color: var(--text-secondary);
   font-weight: 500;
 }
 </style>
