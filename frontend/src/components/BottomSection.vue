@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useJuce } from '@/composables/useJuce'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import RotaryKnob from './RotaryKnob.vue'
 
 const { getSlider, getToggle } = useJuce()
 
@@ -13,15 +14,24 @@ const globalMix = computed(() => getSlider('MIX'))
 const globalLpFilter = computed(() => getSlider('LP_FILTER_FREQ'))
 const globalHpFilter = computed(() => getSlider('HP_FILTER_FREQ'))
 const ducking = computed(() => getSlider('DUCKING'))
+
+// Mode selection (local state - you can integrate with JUCE if needed)
+const selectedMode = ref('normal')
+
+const setMode = (mode: string) => {
+  selectedMode.value = mode
+  // You can add JUCE integration here if needed
+}
 </script>
 
 <template>
   <div class="bottom-section">
-    <!-- Left: SYNC Button -->
+    <!-- Left: SYNC Toggle -->
     <div class="control-group sync-group">
       <label class="toggle-label">
         <input 
           type="checkbox" 
+          class="modern-toggle"
           :checked="sync.isActive()" 
           @change="e => sync.toggle((e.target as HTMLInputElement).checked)"
         />
@@ -29,122 +39,126 @@ const ducking = computed(() => getSlider('DUCKING'))
       </label>
     </div>
 
-    <!-- PAN Slider -->
-    <div class="control-group pan-group">
-      <label>PAN</label>
-      <input 
-        type="range" 
-        min="0" 
-        max="1" 
-        step="0.01"
-        class="slider-horizontal"
-        :value="globalPan.state.normalised"
-        @input="e => globalPan.setNormalisedValue(Number((e.target as HTMLInputElement).value))"
+    <!-- PAN Knob -->
+    <div class="control-group">
+      <RotaryKnob
+        :model-value="globalPan.state.normalised"
+        @update:model-value="globalPan.setNormalisedValue"
+        label="Pan"
+        size="small"
       />
-      <span class="value-display">{{ globalPan.state.normalised.toFixed(2) }}</span>
     </div>
 
-    <!-- Feedback and Time Stacked -->
+    <!-- Feedback & Time Stacked -->
     <div class="control-group stacked-group">
-      <div class="stacked-control">
-        <label>FB</label>
-        <input 
-          type="range" 
-          min="0" 
-          max="1" 
-          step="0.01"
-          class="slider-small"
-          :value="globalFeedback.state.normalised"
-          @input="e => globalFeedback.setNormalisedValue(Number((e.target as HTMLInputElement).value))"
-        />
-        <span class="value-display">{{ globalFeedback.state.normalised.toFixed(2) }}</span>
-      </div>
-      <div class="stacked-control">
-        <label>TM</label>
-        <input 
-          type="range" 
-          min="0" 
-          max="1" 
-          step="0.01"
-          class="slider-small"
-          :value="globalTime.state.normalised"
-          @input="e => globalTime.setNormalisedValue(Number((e.target as HTMLInputElement).value))"
-        />
-        <span class="value-display">{{ globalTime.state.normalised.toFixed(2) }}</span>
-      </div>
+      <RotaryKnob
+        :model-value="globalFeedback.state.normalised"
+        @update:model-value="globalFeedback.setNormalisedValue"
+        label="Feedback"
+        size="small"
+      />
+      <RotaryKnob
+        :model-value="globalTime.state.normalised"
+        @update:model-value="globalTime.setNormalisedValue"
+        label="Time"
+        size="small"
+      />
     </div>
 
     <!-- Center: Global MIX Knob -->
     <div class="control-group mix-group">
-      <label>MIX</label>
-      <input 
-        type="range" 
-        min="0" 
-        max="1" 
-        step="0.01"
-        class="slider-mix"
-        :value="globalMix.state.normalised"
-        @input="e => globalMix.setNormalisedValue(Number((e.target as HTMLInputElement).value))"
+      <RotaryKnob
+        :model-value="globalMix.state.normalised"
+        @update:model-value="globalMix.setNormalisedValue"
+        label="Mix"
+        size="small"
       />
-      <span class="value-display">{{ globalMix.state.normalised.toFixed(2) }}</span>
     </div>
 
-    <!-- Filter Buttons Stacked -->
-    <div class="control-group filters-group">
-      <button class="filter-btn">
-        <span class="filter-label">LP</span>
-        <input 
-          type="range" 
-          min="0" 
-          max="1" 
-          step="0.01"
-          class="filter-slider"
-          :value="globalLpFilter.state.normalised"
-          @input="e => globalLpFilter.setNormalisedValue(Number((e.target as HTMLInputElement).value))"
-        />
-      </button>
-      <button class="filter-btn">
-        <span class="filter-label">HP</span>
-        <input 
-          type="range" 
-          min="0" 
-          max="1" 
-          step="0.01"
-          class="filter-slider"
-          :value="globalHpFilter.state.normalised"
-          @input="e => globalHpFilter.setNormalisedValue(Number((e.target as HTMLInputElement).value))"
-        />
-      </button>
+    <!-- LP & HP Filter Stacked -->
+    <div class="control-group stacked-group">
+      <RotaryKnob
+        :model-value="globalLpFilter.state.normalised"
+        @update:model-value="globalLpFilter.setNormalisedValue"
+        label="LP Filter"
+        size="small"
+      />
+      <RotaryKnob
+        :model-value="globalHpFilter.state.normalised"
+        @update:model-value="globalHpFilter.setNormalisedValue"
+        label="HP Filter"
+        size="small"
+      />
     </div>
 
-    <!-- Right: Ducking Knob -->
-    <div class="control-group ducking-group">
-      <label>DUCK</label>
-      <input 
-        type="range" 
-        min="0" 
-        max="1" 
-        step="0.01"
-        class="slider-horizontal"
-        :value="ducking.state.normalised"
-        @input="e => ducking.setNormalisedValue(Number((e.target as HTMLInputElement).value))"
+    <!-- Ducking Knob -->
+    <div class="control-group">
+      <RotaryKnob
+        :model-value="ducking.state.normalised"
+        @update:model-value="ducking.setNormalisedValue"
+        label="Ducking"
+        size="small"
       />
-      <span class="value-display">{{ ducking.state.normalised.toFixed(2) }}</span>
+    </div>
+
+    <!-- Right: Mode Selection (3D Radio Buttons) -->
+    <div class="control-group mode-group">
+      <div class="mode-label">MODE</div>
+      <div class="mode-buttons">
+        <button 
+          class="mode-button"
+          :class="{ active: selectedMode === 'normal' }"
+          @click="setMode('normal')"
+        >
+          NORMAL
+        </button>
+        <button 
+          class="mode-button"
+          :class="{ active: selectedMode === 'pingpong' }"
+          @click="setMode('pingpong')"
+        >
+          PING-PONG
+        </button>
+        <button 
+          class="mode-button"
+          :class="{ active: selectedMode === 'swap' }"
+          @click="setMode('swap')"
+        >
+          SWAP
+        </button>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+/* Use the same CSS variables from our design system */
+:root {
+  --primary-blue: #4a9eff;
+  --primary-cyan: #00d4ff;
+  --blue-glow: rgba(74, 158, 255, 0.6);
+  --cyan-glow: rgba(0, 212, 255, 0.5);
+  --metal-dark: #1a1d24;
+  --metal-medium: #252830;
+  --metal-light: #2f3239;
+  --metal-lighter: #3a3d45;
+  --text-primary: #e8eaed;
+  --text-secondary: #9aa0a6;
+  --text-dim: #6b7075;
+  --shadow-deep: 0 4px 16px rgba(0, 0, 0, 0.6);
+  --inset-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
 .bottom-section {
   width: 100%;
-  height: 50px;
-  background: linear-gradient(135deg, #1a1d2e 0%, #16192b 100%);
-  border-top: 1px solid #4a9eff;
-  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.4);
+  height: 120px;
+  background: linear-gradient(145deg, var(--metal-medium) 0%, var(--metal-dark) 100%);
+  border-top: 1px solid rgba(74, 158, 255, 0.3);
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.4), var(--inset-shadow);
   display: flex;
   align-items: center;
-  padding: 4px 8px;
-  gap: 8px;
+  padding: 8px 16px;
+  gap: 12px;
   flex-shrink: 0;
   justify-content: space-between;
 }
@@ -154,154 +168,173 @@ const ducking = computed(() => getSlider('DUCKING'))
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  gap: 4px;
   flex: 1;
   height: 100%;
-  min-width: 40px;
 }
 
 .sync-group {
   flex: 0.8;
-}
-
-.pan-group {
-  flex: 1.2;
+  min-width: 60px;
 }
 
 .stacked-group {
   display: flex;
-  gap: 2px;
-  flex: 1.2;
-}
-
-.stacked-control {
-  display: flex;
   flex-direction: column;
+  gap: 4px;
+  flex: 1;
   align-items: center;
   justify-content: center;
-  gap: 1px;
-  flex: 1;
-  min-width: 35px;
-}
-
-.stacked-control label {
-  font-size: 8px;
-  font-weight: 600;
-  color: #999;
 }
 
 .mix-group {
-  flex: 1.5;
+  flex: 1;
+  justify-content: center;
 }
 
-.mix-group label {
-  font-size: 9px;
-  font-weight: 600;
-  color: #4a9eff;
-}
-
-.filters-group {
-  display: flex;
-  gap: 2px;
+.mode-group {
   flex: 1.2;
+  gap: 6px;
 }
 
-.filter-btn {
+/* Modern Toggle Switch */
+.toggle-label {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 1px;
-  padding: 2px 4px;
-  background: linear-gradient(135deg, #3a3d4a 0%, #2a2d3a 100%);
-  border: 1px solid #555;
-  border-radius: 2px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 8px;
-  font-weight: 600;
-  color: #ccc;
-  flex: 1;
-  min-width: 35px;
-}
-
-.filter-btn:hover {
-  background: linear-gradient(135deg, #4a4d5a 0%, #3a3d4a 100%);
-  border-color: #666;
-  transform: translateY(-1px);
-}
-
-.filter-btn:active {
-  transform: translateY(0);
-}
-
-.filter-label {
-  font-size: 8px;
-  font-weight: 600;
-  color: #4a9eff;
-}
-
-.filter-slider {
-  width: 30px;
-  height: 6px;
-  cursor: pointer;
-  accent-color: #4a9eff;
-}
-
-.ducking-group {
-  flex: 1.2;
-}
-
-label {
-  font-size: 8px;
-  font-weight: 600;
-  color: #999;
-}
-
-.toggle-label {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  gap: 8px;
   cursor: pointer;
   font-size: 9px;
   font-weight: 600;
-  color: #4a9eff;
+  color: var(--text-secondary);
   user-select: none;
-  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.toggle-label input {
-  width: 12px;
-  height: 12px;
+.toggle-label:hover {
+  color: var(--text-primary);
+}
+
+.modern-toggle {
+  appearance: none;
+  width: 48px;
+  height: 24px;
+  background: var(--metal-dark);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   cursor: pointer;
-  accent-color: #4a9eff;
-  flex-shrink: 0;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--inset-shadow);
 }
 
-.slider-horizontal {
+.modern-toggle::before {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  background: linear-gradient(145deg, var(--metal-lighter), var(--metal-light));
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modern-toggle:checked {
+  background: linear-gradient(90deg, var(--primary-blue), var(--primary-cyan));
+  border-color: var(--primary-cyan);
+  box-shadow: 
+    var(--inset-shadow),
+    0 0 12px var(--blue-glow);
+}
+
+.modern-toggle:checked::before {
+  left: 26px;
+  background: linear-gradient(145deg, #ffffff, #e8eaed);
+  box-shadow: 
+    0 2px 6px rgba(0, 0, 0, 0.4),
+    0 0 8px rgba(0, 212, 255, 0.6);
+}
+
+.modern-toggle:hover:not(:checked)::before {
+  background: linear-gradient(145deg, var(--metal-lighter), var(--metal-medium));
+}
+
+/* Mode Selection - 3D Buttons */
+.mode-label {
+  font-size: 8px;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.mode-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   width: 100%;
-  height: 8px;
-  cursor: pointer;
-  accent-color: #4a9eff;
 }
 
-.slider-small {
-  width: 100%;
-  height: 6px;
+.mode-button {
+  padding: 6px 12px;
+  font-size: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: none;
+  border-radius: 4px;
   cursor: pointer;
-  accent-color: #4a9eff;
+  transition: all 0.15s ease;
+  user-select: none;
+  color: var(--text-secondary);
+  
+  /* 3D raised effect */
+  background: linear-gradient(145deg, var(--metal-lighter), var(--metal-light));
+  box-shadow: 
+    0 3px 0 var(--metal-dark),
+    0 4px 6px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  border-right: 1px solid rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.3);
 }
 
-.slider-mix {
-  width: 100%;
-  height: 10px;
-  cursor: pointer;
-  accent-color: #4a9eff;
+.mode-button:hover:not(.active) {
+  background: linear-gradient(145deg, var(--metal-lighter), var(--metal-medium));
+  transform: translateY(-1px);
+  box-shadow: 
+    0 4px 0 var(--metal-dark),
+    0 5px 8px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
-.value-display {
-  font-size: 7px;
-  color: #888;
-  font-weight: 500;
+.mode-button.active {
+  /* 3D pressed effect */
+  background: linear-gradient(145deg, var(--primary-blue), var(--primary-cyan));
+  color: #ffffff;
+  transform: translateY(3px);
+  box-shadow: 
+    0 0 0 var(--metal-dark),
+    inset 0 2px 4px rgba(0, 0, 0, 0.5),
+    0 0 12px var(--blue-glow);
+  border-top: 1px solid rgba(0, 0, 0, 0.3);
+  border-left: 1px solid rgba(0, 0, 0, 0.2);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  text-shadow: 0 0 6px var(--cyan-glow);
+}
+
+.mode-button:active:not(.active) {
+  transform: translateY(2px);
+  box-shadow: 
+    0 1px 0 var(--metal-dark),
+    inset 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 </style>
