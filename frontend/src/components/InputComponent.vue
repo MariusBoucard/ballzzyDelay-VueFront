@@ -1,15 +1,41 @@
 <script setup lang="ts">
-// Input component for the left side
+import { useJuce } from '@/composables/useJuce'
+import { computed } from 'vue'
+import RotaryKnob from './RotaryKnob.vue'
+
+const { getSlider } = useJuce()
+
+// Hook into the JUCE parameter
+const inputGain = computed(() => getSlider('INPUT_GAIN'))
+
+// Example fixed value as requested
+const meterLevel = 0.7 
 </script>
 
 <template>
   <div class="input-container">
     <div class="input-header">
-      <h3>Input</h3>
+      <h3>INPUT</h3>
     </div>
+    
     <div class="input-content">
-      <!-- Add input controls here -->
-      <p>Input Controls</p>
+      <div class="meter-area">
+        <div class="meter-track">
+          <div class="meter-fill" :style="{ height: (meterLevel * 100) + '%' }"></div>
+        </div>
+        <div class="meter-track">
+          <div class="meter-fill" :style="{ height: (meterLevel * 100) + '%' }"></div>
+        </div>
+      </div>
+
+      <div class="gain-area">
+        <RotaryKnob
+          :model-value="inputGain.state.normalised"
+          @update:model-value="inputGain.setNormalisedValue"
+          label="GAIN"
+          size="small"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -20,39 +46,74 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 6px;
-  background: linear-gradient(135deg, #2a2d3a 0%, #1f2129 100%);
+  padding: 10px 6px;
+  background: linear-gradient(180deg, #2a2d3a 0%, #16181e 100%);
   border-radius: 4px;
   border: 1px solid #444;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-  color: #e0e0e0;
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.05);
 }
 
 .input-header {
   text-align: center;
-  padding-bottom: 4px;
-  border-bottom: 1px solid #444;
+  margin-bottom: 8px;
   flex-shrink: 0;
 }
 
 .input-header h3 {
   margin: 0;
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 9px;
+  letter-spacing: 1.5px;
   color: #4a9eff;
+  text-transform: uppercase;
 }
 
 .input-content {
   flex: 1;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px 0;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.input-content p {
-  margin: 0;
-  font-size: 10px;
-  color: #999;
+/* Meter Area (80% Height) */
+.meter-area {
+  flex: 0 0 75%; /* Giving meters the majority of the vertical space */
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 4px;
+}
+
+.meter-track {
+  flex: 1; /* Stretch to fill available width */
+  height: 100%;
+  background: #000;
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #333;
+}
+
+.meter-fill {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  /* Audio-style gradient: Green -> Yellow -> Red at the top */
+  background: linear-gradient(to top, 
+    #2ecc71 0%, 
+    #2ecc71 70%, 
+    #f1c40f 85%, 
+    #e74c3c 100%
+  );
+  transition: height 0.05s ease-out;
+}
+
+/* Gain Area */
+.gain-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid #333;
+  padding-top: 8px;
 }
 </style>

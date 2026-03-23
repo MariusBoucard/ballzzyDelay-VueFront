@@ -16,7 +16,7 @@ const { getSlider, getToggle } = useJuce()
 const getParam = (suffix: string) => `${props.headName}_${suffix}`
 
 // Get all the controls for this head
-const bypass = computed(() => getToggle(getParam('BYPASS')))
+const bypass = computed(() => getToggle(getParam('ON')))
 const pan = computed(() => getSlider(getParam('PAN')))
 const feedback = computed(() => getSlider(getParam('FEEDBACK')))
 const time = computed(() => getSlider(getParam('TIME')))
