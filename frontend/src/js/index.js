@@ -8,6 +8,18 @@ window.__JUCE__.backend.addEventListener(
     console.log(objectFromBackend);
   }
 );
+window.__JUCE__.backend.addEventListener(
+  "inputLevelEvent",
+  (objectFromBackend) => {
+    console.log(objectFromBackend);
+  }
+);
+window.__JUCE__.backend.addEventListener(
+  "outputLevelEvent",
+  (objectFromBackend) => {
+    console.log(objectFromBackend);
+  }
+);
 
 const data = window.__JUCE__.initialisationData;
 
@@ -88,12 +100,15 @@ document.addEventListener("DOMContentLoaded", () => {
     ],
     layout: { width: 200, height: 400, yaxis: { range: [-60, 0] } },
   });
+        console.log("test");
 
   window.__JUCE__.backend.addEventListener("outputLevel", () => {
     fetch(Juce.getBackendResourceAddress("outputLevel.json"))
       .then((response) => response.text())
       .then((outputLevel) => {
         const levelData = JSON.parse(outputLevel);
+        console.log(levelData);
+        console.log("la");
         Plotly.animate(
           "outputLevelPlot",
           {

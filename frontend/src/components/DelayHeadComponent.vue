@@ -30,9 +30,9 @@ const hpFilterFreq = computed(() => getSlider(getParam('HP_FILTER_FREQ')))
 const movementOn = computed(() => getToggle(getParam('MOVEMENT_ON')))
 const movementWidthSlave = computed(() => getToggle(getParam('MOVEMENT_WIDTH_SLAVE')))
 const feedbackSlave = computed(() => getToggle(getParam('FEEDBACK_SLAVE')))
-const gainSlave = computed(() => getToggle(getParam('GAIN_SLAVE')))
-const hpSlave = computed(() => getToggle(getParam('HP_SLAVE')))
-const lpSlave = computed(() => getToggle(getParam('LP_SLAVE')))
+const gainSlave = computed(() => getToggle(getParam('GAIN_  SLAVE')))
+const hpBp = computed(() => getToggle(getParam('HP_FILTER_BYPASS')))
+const lpBp = computed(() => getToggle(getParam('LP_FILTER_BYPASS')))
 </script>
 
 <template>
@@ -91,41 +91,65 @@ const lpSlave = computed(() => getToggle(getParam('LP_SLAVE')))
     <div class="separator"></div>
 
     <!-- Filter Section -->
-    <div class="section filter-section">
-      <div class="filter-row">
-        <label class="filter-label">LP</label>
-        <div class="slider-container">
-          <input 
-            type="range" 
-            min="0" 
-            max="1" 
-            step="0.01"
-            class="filter-slider"
-            :value="lpFilterFreq.state.normalised"
-            @input="e => lpFilterFreq.setNormalisedValue(Number((e.target as HTMLInputElement).value))"
-            :style="{ '--fill-percent': (lpFilterFreq.state.normalised * 100) + '%' }"
-          />
-        </div>
-        <span class="slider-value">{{ (lpFilterFreq.state.normalised * 100).toFixed(0) }}</span>
+<div class="section filter-section">
+  
+  <!-- LP Filter Group -->
+  <div class="filter-group">
+    <div class="filter-row">
+      <label class="filter-label">LP</label>
+      <div class="slider-container">
+        <input 
+          type="range" min="0" max="1" step="0.01" class="filter-slider"
+          :value="lpFilterFreq.state.normalised"
+          @input="e => lpFilterFreq.setNormalisedValue(Number((e.target as HTMLInputElement).value))"
+          :style="{ '--fill-percent': (lpFilterFreq.state.normalised * 100) + '%' }"
+        />
       </div>
-
-      <div class="filter-row">
-        <label class="filter-label">HP</label>
-        <div class="slider-container">
-          <input 
-            type="range" 
-            min="0" 
-            max="1" 
-            step="0.01"
-            class="filter-slider"
-            :value="hpFilterFreq.state.normalised"
-            @input="e => hpFilterFreq.setNormalisedValue(Number((e.target as HTMLInputElement).value))"
-            :style="{ '--fill-percent': (hpFilterFreq.state.normalised * 100) + '%' }"
-          />
-        </div>
-        <span class="slider-value">{{ (hpFilterFreq.state.normalised * 100).toFixed(0) }}</span>
-      </div>
+      <span class="slider-value">{{ (lpFilterFreq.state.normalised * 100).toFixed(0) }}</span>
     </div>
+    
+    <div class="bypass-container">
+      <span class="bypass-text">Bypass</span>
+      <label class="custom-checkbox">
+        <input 
+          type="checkbox" 
+          :checked="lpBp.isActive()" 
+          @change="e => lpBp.toggle((e.target as HTMLInputElement).checked)"
+        />
+        <span class="checkmark"></span>
+      </label>
+    </div>
+  </div>
+
+  <!-- HP Filter Group -->
+  <div class="filter-group">
+    <div class="filter-row">
+      <label class="filter-label">HP</label>
+      <div class="slider-container">
+        <input 
+          type="range" min="0" max="1" step="0.01" class="filter-slider"
+          :value="hpFilterFreq.state.normalised"
+          @input="e => hpFilterFreq.setNormalisedValue(Number((e.target as HTMLInputElement).value))"
+          :style="{ '--fill-percent': (hpFilterFreq.state.normalised * 100) + '%' }"
+        />
+      </div>
+      <span class="slider-value">{{ (hpFilterFreq.state.normalised * 100).toFixed(0) }}</span>
+    </div>
+    
+    <div class="bypass-container">
+      <span class="bypass-text">Bypass</span>
+      <label class="custom-checkbox">
+        <input 
+          type="checkbox" 
+          :checked="hpBp.isActive()" 
+          @change="e => hpBp.toggle((e.target as HTMLInputElement).checked)"
+        />
+        <span class="checkmark"></span>
+      </label>
+    </div>
+  </div>
+
+</div>      
 
     <!-- Head Function Component -->
     <div class="section function-section">
@@ -340,7 +364,16 @@ const lpSlave = computed(() => getToggle(getParam('LP_SLAVE')))
    Modern Filter Sliders - Full Width Stacked
    ============================================ */
 .filter-section {
-  gap: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* Space between LP and HP blocks */
+  width: 100%;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px; /* Space between slider and its bypass row */
   width: 100%;
 }
 
@@ -351,14 +384,82 @@ const lpSlave = computed(() => getToggle(getParam('LP_SLAVE')))
   width: 100%;
 }
 
+/* Bypass Row Styling */
+.bypass-container {
+  display: flex;
+  
+  align-items: center;
+  padding-left: 24px; /* Aligns "Bypass" text under the start of the slider */
+  padding-right: 4px;
+}
+.bypass-text {
+  font-size: 8px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Custom Themed Checkbox */
+.custom-checkbox {
+  position: relative;
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-left: 15px;
+}
+
+.custom-checkbox input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 14px;
+  width: 14px;
+  padding: 5px;
+  background-color: var(--metal-dark);
+  border: 1px solid rgba(74, 158, 255, 0.3);
+  border-radius: 2px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+/* Checked state */
+.custom-checkbox input:checked + .checkmark {
+  background-color: rgba(0, 212, 255, 0.1);
+  border-color: var(--primary-cyan);
+  box-shadow: 0 0 8px var(--blue-glow);
+}
+
+/* The checkmark indicator */
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+  left: 4px;
+  top: 1px;
+  width: 3px;
+  height: 7px;
+  border: solid var(--primary-cyan);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.custom-checkbox input:checked + .checkmark:after {
+  display: block;
+}
+
+/* Existing slider styles remain same, just ensure .filter-label min-width is consistent */
 .filter-label {
   font-size: 9px;
   font-weight: 700;
   color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
   min-width: 16px;
-  text-align: center;
 }
 
 .slider-value {

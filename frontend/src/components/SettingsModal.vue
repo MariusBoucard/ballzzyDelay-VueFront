@@ -1,6 +1,5 @@
-<script setup lang="ts">
-import { defineProps, defineEmits } from 'vue'
 
+<script setup lang="ts">
 defineProps<{
   isOpen: boolean
 }>()

@@ -23,6 +23,7 @@ const ducking = computed(() => getToggle('DUCKING'))
 const duckingAttack = computed(() => getSlider('DUCKING_ATTACK'))
 const duckingRelease = computed(() => getSlider('DUCKING_RELEASE'))
 const duckingThreshold = computed(() => getSlider('DUCKING_THRESHOLD'))
+const duckingRatio = computed(() => getSlider('DUCKING_RATIO'))
 
 const selectedMode = ref('normal')
 
@@ -101,35 +102,52 @@ const setMode = (mode: string) => {
     <div class="ducking-card">
       <div class="ducking-header">
         <label class="ducking-toggle-label">
-          <input 
+      <!--    <input 
             type="checkbox" 
             class="ducking-toggle"
             :checked="ducking.isActive()" 
-            @change="e => ducking.setNormalisedValue((e.target as HTMLInputElement).checked ? 1 : 0)"
-          />
+            @change="e => ducking.setVa((e.target as HTMLInputElement).checked ? 1 : 0)"
+          />-->
           <span>DUCKING</span>
         </label>
       </div>
       
       <div class="ducking-knobs">
+        <div>
+       <RotaryKnob
+          :model-value="duckingRatio.state.normalised"
+          @update:model-value="duckingRatio.setNormalisedValue"
+          label="Ratio"
+          size="small"
+                    value-position="right"
+
+        />
         <RotaryKnob
           :model-value="duckingAttack.state.normalised"
           @update:model-value="duckingAttack.setNormalisedValue"
           label="Attack"
           size="small"
+          value-position="right"
         />
+        </div>
+<div>
         <RotaryKnob
           :model-value="duckingRelease.state.normalised"
           @update:model-value="duckingRelease.setNormalisedValue"
           label="Release"
           size="small"
+                    value-position="right"
+
         />
         <RotaryKnob
           :model-value="duckingThreshold.state.normalised"
           @update:model-value="duckingThreshold.setNormalisedValue"
           label="Threshold"
           size="small"
+                    value-position="right"
+
         />
+      </div>
       </div>
     </div>
 
@@ -373,11 +391,12 @@ const setMode = (mode: string) => {
 /* Ducking 3D Card */
 .ducking-card {
   display: flex;
+  width: 100%;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  flex: 1.2;
+  flex: 2;
   height: 100%;
   padding: 8px 12px;
   background: linear-gradient(135deg, rgba(74, 158, 255, 0.15) 0%, rgba(0, 212, 255, 0.08) 100%);

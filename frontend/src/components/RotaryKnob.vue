@@ -8,6 +8,7 @@ interface Props {
   min?: number
   max?: number
   step?: number
+  valuePosition?: 'top' | 'bottom' | 'right' | 'hidden'
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -143,17 +144,21 @@ const displayValue = computed(() => {
         <div 
           class="knob-indicator-track"
           :style="{ transform: `rotate(${rotationAngle}deg)` }"
-        >
+        >   
+
           <div class="knob-indicator"></div>
         </div>
+
       </div>
+               <div v-if="valuePosition === 'right'" class="knob-value" style="margin-left: 56px;">{{ displayValue }}</div>
+
     </div>
     
     <!-- Label -->
     <div v-if="label" class="knob-label">{{ label }}</div>
     
     <!-- Value display -->
-    <div class="knob-value">{{ displayValue }}</div>
+    <div v-if="valuePosition !== 'hidden' &&   valuePosition !== 'right'" class="knob-value">{{ displayValue }}</div>
   </div>
 </template>
 

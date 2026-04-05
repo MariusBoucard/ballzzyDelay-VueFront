@@ -2,14 +2,18 @@
 import { useJuce } from '@/composables/useJuce'
 import { computed } from 'vue'
 import RotaryKnob from './RotaryKnob.vue'
+import { ref } from 'vue'
 
-const { getSlider } = useJuce()
-
+const { getSlider , onBackendEvent} = useJuce()
+//const meterLevel = ref(0.7)
+onBackendEvent('inputLevelEvent', (data) => {
+    console.log('Received input level from C++:', data)
+  meterLevel.value = data
+})
 // Hook into the JUCE parameter
 const inputGain = computed(() => getSlider('INPUT_GAIN'))
-
 // Example fixed value as requested
-const meterLevel = 0.7 
+let meterLevel =ref(0.7)
 </script>
 
 <template>
