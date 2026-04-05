@@ -38,6 +38,8 @@ let meterLevel =ref(0.7)
           @update:model-value="inputGain.setNormalisedValue"
           label="GAIN"
           size="small"
+          :min="-12"
+          :max="12"
         />
       </div>
     </div>
