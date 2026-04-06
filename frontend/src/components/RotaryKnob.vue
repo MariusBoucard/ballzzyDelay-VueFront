@@ -8,6 +8,7 @@ interface Props {
   min?: number
   max?: number
   step?: number
+  unit?: string
   valuePosition?: 'top' | 'bottom' | 'right' | 'hidden'
 }
 
@@ -15,6 +16,7 @@ const props = withDefaults(defineProps<Props>(), {
   label: '',
   size: 'medium',
   min: 0,
+  unit: '',
   max: 1,
   step: 0.01
 })
@@ -150,7 +152,8 @@ const displayValue = computed(() => {
         </div>
 
       </div>
-               <div v-if="valuePosition === 'right'" class="knob-value" style="margin-left: 56px;">{{ displayValue }}</div>
+               <div v-if="valuePosition === 'right'" class="knob-value" style="margin-left: 56px;">{{ displayValue }}
+               </div>
 
     </div>
     
@@ -158,7 +161,10 @@ const displayValue = computed(() => {
     <div v-if="label" class="knob-label">{{ label }}</div>
     
     <!-- Value display -->
-    <div v-if="valuePosition !== 'hidden' &&   valuePosition !== 'right'" class="knob-value">{{ displayValue }}</div>
+    <div v-if="valuePosition !== 'hidden' &&   valuePosition !== 'right'" class="knob-value">{{ displayValue }}
+      <span v-if="unit" class="knob-unit">{{ unit }}</span>
+
+    </div>
   </div>
 </template>
 

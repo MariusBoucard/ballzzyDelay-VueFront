@@ -6,7 +6,7 @@ import { ref } from 'vue'
 const { getSlider , onBackendEvent} = useJuce()
 //const meterLevel = ref(0.7)
 onBackendEvent('outputLevelEvent', (data) => {
-    console.log('Received output level from C++:', data)
+ //   console.log('Received output level from C++:', data)
   meterLevel.value = data
 })
 // Hook into the JUCE parameter
@@ -39,6 +39,7 @@ let meterLevel =ref(0.7)
           size="small"
           :min="-12"
           :max="12"
+          unit="dB"
         />
       </div>
     </div>

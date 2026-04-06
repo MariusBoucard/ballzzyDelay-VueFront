@@ -33,6 +33,24 @@ const feedbackSlave = computed(() => getToggle(getParam('FEEDBACK_SLAVE')))
 const gainSlave = computed(() => getToggle(getParam('GAIN_  SLAVE')))
 const hpBp = computed(() => getToggle(getParam('HP_FILTER_BYPASS')))
 const lpBp = computed(() => getToggle(getParam('LP_FILTER_BYPASS')))
+
+// Frequency mapping constants
+const MIN_FREQ = 20
+const MAX_FREQ = 20000
+
+// Convert normalized value [0-1] to frequency [20-20000] using logarithmic scale
+const normalizedToFrequency = (normalized: number): number => {
+  const logMin = Math.log10(MIN_FREQ)
+  const logMax = Math.log10(MAX_FREQ)
+  return Math.pow(10, logMin + (logMax - logMin) * normalized)
+}
+
+// Convert frequency [20-20000] to normalized value [0-1] using logarithmic scale
+const frequencyToNormalized = (frequency: number): number => {
+  const logMin = Math.log10(MIN_FREQ)
+  const logMax = Math.log10(MAX_FREQ)
+  return (Math.log10(frequency) - logMin) / (logMax - logMin)
+}
 </script>
 
 <template>
@@ -58,6 +76,8 @@ const lpBp = computed(() => getToggle(getParam('LP_FILTER_BYPASS')))
         @update:model-value="pan.setNormalisedValue"
         label="Pan"
         size="medium"
+        :min="-100"
+        :max="100"
       />
     </div>
 
@@ -68,12 +88,18 @@ const lpBp = computed(() => getToggle(getParam('LP_FILTER_BYPASS')))
         @update:model-value="feedback.setNormalisedValue"
         label="Feedback"
         size="small"
+        :min="0"
+        :max="95"
+        unit="%"
       />
       <RotaryKnob
         :model-value="time.state.normalised"
         @update:model-value="time.setNormalisedValue"
         label="Time"
         size="small"
+        :min="0"
+        :max="4"
+        unit="s"
       />
     </div>
 
@@ -84,6 +110,9 @@ const lpBp = computed(() => getToggle(getParam('LP_FILTER_BYPASS')))
         @update:model-value="gain.setNormalisedValue"
         label="Gain"
         size="medium"
+        :min="-12"
+        :max="12"
+        unit="dB"
       />  
     </div>
 
@@ -104,8 +133,8 @@ const lpBp = computed(() => getToggle(getParam('LP_FILTER_BYPASS')))
           @input="e => lpFilterFreq.setNormalisedValue(Number((e.target as HTMLInputElement).value))"
           :style="{ '--fill-percent': (lpFilterFreq.state.normalised * 100) + '%' }"
         />
-      </div>
-      <span class="slider-value">{{ (lpFilterFreq.state.normalised * 100).toFixed(0) }}</span>
+      </div>  
+      <span class="slider-value">{{ normalizedToFrequency(lpFilterFreq.state.normalised).toFixed(0) }} Hz</span>
     </div>
     
     <div class="bypass-container">
@@ -133,7 +162,7 @@ const lpBp = computed(() => getToggle(getParam('LP_FILTER_BYPASS')))
           :style="{ '--fill-percent': (hpFilterFreq.state.normalised * 100) + '%' }"
         />
       </div>
-      <span class="slider-value">{{ (hpFilterFreq.state.normalised * 100).toFixed(0) }}</span>
+      <span class="slider-value">{{ normalizedToFrequency(hpFilterFreq.state.normalised).toFixed(0) }} Hz</span>
     </div>
     
     <div class="bypass-container">
