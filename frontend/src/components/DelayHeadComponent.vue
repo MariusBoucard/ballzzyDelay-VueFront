@@ -51,6 +51,18 @@ const frequencyToNormalized = (frequency: number): number => {
   const logMax = Math.log10(MAX_FREQ)
   return (Math.log10(frequency) - logMin) / (logMax - logMin)
 }
+
+// Convert log-scale slider position to linear normalized value for backend
+const sliderPositionToParamNormalized = (sliderValue: number): number => {
+  const frequency = normalizedToFrequency(sliderValue) // sliderValue log → frequency
+  return (frequency - MIN_FREQ) / (MAX_FREQ - MIN_FREQ) // frequency → normalized linear
+}
+
+// Convert linear normalized value from backend to log-scale slider position
+const paramNormalizedToSliderPosition = (paramNormalized: number): number => {
+  const frequency = MIN_FREQ + paramNormalized * (MAX_FREQ - MIN_FREQ) // normalized linear → frequency
+  return frequencyToNormalized(frequency) // frequency → sliderValue log
+}
 </script>
 
 <template>
@@ -129,12 +141,12 @@ const frequencyToNormalized = (frequency: number): number => {
       <div class="slider-container">
         <input 
           type="range" min="0" max="1" step="0.01" class="filter-slider"
-          :value="lpFilterFreq.state.normalised"
-          @input="e => lpFilterFreq.setNormalisedValue(Number((e.target as HTMLInputElement).value))"
-          :style="{ '--fill-percent': (lpFilterFreq.state.normalised * 100) + '%' }"
+          :value="paramNormalizedToSliderPosition(lpFilterFreq.state.normalised)"
+          @input="e => lpFilterFreq.setNormalisedValue(sliderPositionToParamNormalized(Number((e.target as HTMLInputElement).value)))"
+          :style="{ '--fill-percent': (paramNormalizedToSliderPosition(lpFilterFreq.state.normalised) * 100) + '%' }"
         />
       </div>  
-      <span class="slider-value">{{ normalizedToFrequency(lpFilterFreq.state.normalised).toFixed(0) }} Hz</span>
+      <span class="slider-value">{{ (MIN_FREQ + lpFilterFreq.state.normalised * (MAX_FREQ - MIN_FREQ)).toFixed(0) }} Hz</span>
     </div>
     
     <div class="bypass-container">
@@ -157,12 +169,12 @@ const frequencyToNormalized = (frequency: number): number => {
       <div class="slider-container">
         <input 
           type="range" min="0" max="1" step="0.01" class="filter-slider"
-          :value="hpFilterFreq.state.normalised"
-          @input="e => hpFilterFreq.setNormalisedValue(Number((e.target as HTMLInputElement).value))"
-          :style="{ '--fill-percent': (hpFilterFreq.state.normalised * 100) + '%' }"
+          :value="paramNormalizedToSliderPosition(hpFilterFreq.state.normalised)"
+          @input="e => hpFilterFreq.setNormalisedValue(sliderPositionToParamNormalized(Number((e.target as HTMLInputElement).value)))"
+          :style="{ '--fill-percent': (paramNormalizedToSliderPosition(hpFilterFreq.state.normalised) * 100) + '%' }"
         />
       </div>
-      <span class="slider-value">{{ normalizedToFrequency(hpFilterFreq.state.normalised).toFixed(0) }} Hz</span>
+      <span class="slider-value">{{ (MIN_FREQ + hpFilterFreq.state.normalised * (MAX_FREQ - MIN_FREQ)).toFixed(0) }} Hz</span>
     </div>
     
     <div class="bypass-container">
