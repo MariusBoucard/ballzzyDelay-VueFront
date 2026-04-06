@@ -52,7 +52,10 @@ const setMode = (mode: string) => {
         :model-value="globalWidth.state.normalised"
         @update:model-value="globalWidth.setNormalisedValue"
         label="Width"
+        :min="0"
+        :max="100"
         size="small"
+        unit="%"
       />
     </div>
 
@@ -63,12 +66,20 @@ const setMode = (mode: string) => {
         @update:model-value="globalFeedback.setNormalisedValue"
         label="Feedback"
         size="small"
+        value-position="right"
+        :min="0"
+        :max="0.95"
+        unit="%"
       />
       <RotaryKnob
         :model-value="globalTime.state.normalised"
         @update:model-value="globalTime.setNormalisedValue"
         label="Time"
         size="small"
+        value-position="right"
+        :min="0"
+        :max="4"
+        unit="s"
       />  
     </div>
 
@@ -78,7 +89,8 @@ const setMode = (mode: string) => {
         :model-value="globalMix.state.normalised"
         @update:model-value="globalMix.setNormalisedValue"
         label="Mix"
-        size="small"
+        size="medium"
+        unit="%"
       />
     </div>
 
@@ -89,12 +101,20 @@ const setMode = (mode: string) => {
         @update:model-value="globalLpFilter.setNormalisedValue"
         label="LP Filter"
         size="small"
+        :min="20"
+        :max="20000"
+        unit="Hz"
+                value-position="right"
       />
       <RotaryKnob
         :model-value="globalHpFilter.state.normalised"
         @update:model-value="globalHpFilter.setNormalisedValue"
         label="HP Filter"
+        :min="20"
+        :max="20000"
         size="small"
+        unit="Hz"
+        value-position="right"
       />
     </div>
 
@@ -102,12 +122,12 @@ const setMode = (mode: string) => {
     <div class="ducking-card">
       <div class="ducking-header">
         <label class="ducking-toggle-label">
-      <!--    <input 
+        <input 
             type="checkbox" 
             class="ducking-toggle"
             :checked="ducking.isActive()" 
-            @change="e => ducking.setVa((e.target as HTMLInputElement).checked ? 1 : 0)"
-          />-->
+            @change="e => ducking.setAct((e.target as HTMLInputElement).checked ? 1 : 0)"
+          />
           <span>DUCKING</span>
         </label>
       </div>
@@ -119,14 +139,19 @@ const setMode = (mode: string) => {
           @update:model-value="duckingRatio.setNormalisedValue"
           label="Ratio"
           size="small"
-                    value-position="right"
-
+          :min="1"
+          :max="20"
+          unit="1:"
+          value-position="right"
         />
         <RotaryKnob
           :model-value="duckingAttack.state.normalised"
           @update:model-value="duckingAttack.setNormalisedValue"
           label="Attack"
           size="small"
+          :min="0"
+          :max="500"
+          unit="ms"
           value-position="right"
         />
         </div>
@@ -136,16 +161,20 @@ const setMode = (mode: string) => {
           @update:model-value="duckingRelease.setNormalisedValue"
           label="Release"
           size="small"
-                    value-position="right"
-
+          value-position="right"
+          :min="5"
+          :max="2000"
+          unit="ms"
         />
         <RotaryKnob
           :model-value="duckingThreshold.state.normalised"
           @update:model-value="duckingThreshold.setNormalisedValue"
           label="Threshold"
           size="small"
-                    value-position="right"
-
+          value-position="right"
+          :min="-60"
+          :max="0"
+          unit="dB"
         />
       </div>
       </div>
@@ -208,7 +237,6 @@ const setMode = (mode: string) => {
   display: flex;
   align-items: center;
   padding: 8px 16px;
-  gap: 12px;
   flex-shrink: 0;
   justify-content: space-between;
 }

@@ -107,11 +107,47 @@ onUnmounted(() => {
   document.removeEventListener('mouseup', handleMouseUp)
 })
 
-// Format the display value
-const displayValue = computed(() => {
+// Format the display value intelligently based on unit type
+const formatValue = computed(() => {
   const value = props.min + (props.modelValue * (props.max - props.min))
-  return value.toFixed(2)
+  
+  // Handle percentage - show full precision
+  if (props.unit === '%') {
+    return { formatted: value.toFixed(2), unit: props.unit }
+  }
+  
+  // Handle Hz - convert to kHz if >= 1000
+  if (props.unit === 'Hz') {
+    if (value >= 1000) {
+      return { formatted: (value / 1000).toFixed(2), unit: 'kHz' }
+    }
+    return { formatted: value.toFixed(0), unit: 'Hz' }
+  }
+  
+  // Handle seconds - convert to ms if < 1
+  if (props.unit === 's') {
+    if (value < 1) {
+      return { formatted: (value * 1000).toFixed(0), unit: 'ms' }
+    }
+    return { formatted: value.toFixed(2), unit: 's' }
+  }
+  if (props.unit === 'ms') {
+    if (value >= 1000) {
+      return { formatted: (value / 1000).toFixed(2), unit: 's' }
+    }
+    return { formatted: value.toFixed(0), unit: 'ms' }
+  }
+  
+  // Handle dB - show 2 decimals
+  if (props.unit === 'dB') {
+    return { formatted: value.toFixed(2), unit: 'dB' }
+  }
+  
+  // Default
+  return { formatted: value.toFixed(2), unit: props.unit }
 })
+
+const displayValue = computed(() => formatValue.value.formatted)
 </script>
 
 <template>
@@ -152,8 +188,7 @@ const displayValue = computed(() => {
         </div>
 
       </div>
-               <div v-if="valuePosition === 'right'" class="knob-value" style="margin-left: 56px;">{{ displayValue }}
-               </div>
+               <div v-if="valuePosition === 'right'" class="knob-value" style="margin-left: 56px;">{{ displayValue }} {{ formatValue.unit }}</div>
 
     </div>
     
@@ -162,7 +197,7 @@ const displayValue = computed(() => {
     
     <!-- Value display -->
     <div v-if="valuePosition !== 'hidden' &&   valuePosition !== 'right'" class="knob-value">{{ displayValue }}
-      <span v-if="unit" class="knob-unit">{{ unit }}</span>
+      <span v-if="unit" class="knob-unit">{{ formatValue.unit }}</span>
 
     </div>
   </div>
