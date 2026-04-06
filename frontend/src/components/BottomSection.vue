@@ -423,6 +423,7 @@ const setMode = (mode: string) => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  margin-right: 10px ;
   gap: 6px;
   flex: 2;
   height: 100%;
