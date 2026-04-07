@@ -9,7 +9,8 @@ interface Props {
   max?: number
   step?: number
   unit?: string
-  valuePosition?: 'top' | 'bottom' | 'right' | 'hidden'
+  valuePosition?: 'top' | 'bottom' | 'left' | 'right' | 'hidden'
+  values?: (string | number)[]
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -42,8 +43,29 @@ const sizeConfig = {
 
 const config = computed(() => sizeConfig[props.size])
 
+// Check if we're using discrete values
+const isDiscrete = computed(() => !!props.values && props.values.length > 0)
+
+// For discrete mode: map modelValue to the closest discrete index
+const discreteIndex = computed(() => {
+  if (!isDiscrete.value) return 0
+  const index = Math.round(props.modelValue * (props.values!.length - 1))
+  return Math.max(0, Math.min(props.values!.length - 1, index))
+})
+
+// Get currently selected discrete value
+const currentDiscreteValue = computed(() => {
+  if (!isDiscrete.value) return null
+  return props.values![discreteIndex.value]
+})
+
 // Calculate rotation angle (270 degrees range, starting from -135deg to +135deg)
 const rotationAngle = computed(() => {
+  if (isDiscrete.value) {
+    // For discrete values, snap to specific positions
+    const anglePerStep = 270 / (props.values!.length - 1)
+    return -135 + (discreteIndex.value * anglePerStep)
+  }
   return -135 + (props.modelValue * 270)
 })
 
@@ -83,6 +105,14 @@ const handleMouseMove = (e: MouseEvent) => {
   
   // Clamp between 0 and 1
   newValue = Math.max(0, Math.min(1, newValue))
+  
+  // If discrete mode, snap to nearest discrete value
+  if (isDiscrete.value) {
+    const numSteps = props.values!.length - 1
+    const snappedIndex = Math.round(newValue * numSteps)
+    newValue = snappedIndex / numSteps
+  }
+  
   console.log("Mouse move, deltaY:", deltaY, "new value:", newValue)
   emit('update:modelValue', newValue)
 }
@@ -95,9 +125,20 @@ const handleMouseUp = () => {
 
 const handleWheel = (e: WheelEvent) => {
   e.preventDefault()
-  const delta = e.deltaY > 0 ? -0.01 : 0.01
-  let newValue = props.modelValue + delta
-  newValue = Math.max(0, Math.min(1, newValue))
+  let newValue = props.modelValue
+  
+  if (isDiscrete.value) {
+    // For discrete mode, move to next/previous value
+    const delta = e.deltaY > 0 ? -1 : 1
+    const newIndex = Math.max(0, Math.min(props.values!.length - 1, discreteIndex.value + delta))
+    newValue = newIndex / (props.values!.length - 1)
+  } else {
+    // For continuous mode, use small increments
+    const delta = e.deltaY > 0 ? -0.01 : 0.01
+    newValue = props.modelValue + delta
+    newValue = Math.max(0, Math.min(1, newValue))
+  }
+  
   emit('update:modelValue', newValue)
 }
 
@@ -106,6 +147,29 @@ onUnmounted(() => {
   document.removeEventListener('mousemove', handleMouseMove)
   document.removeEventListener('mouseup', handleMouseUp)
 })
+
+// Calculate position of discrete values around the knob
+const getDiscreteValuePosition = (index: number): Record<string, string> => {
+  if (!isDiscrete.value) return {}
+  
+  const numValues = props.values!.length
+  const anglePerValue = 270 / (numValues - 1) // 270 degrees total range
+  const startAngle = -270 // Starting at -135 degrees
+  const angleOffset = anglePerValue / 2 // Center values within their arc
+  const angle = startAngle + angleOffset + (index * anglePerValue)
+  
+  // Convert angle to position around a circle
+  const radius = config.value.size * 0.8 // Position well outside the knob
+  const radians = (angle * Math.PI) / 180
+  const x = Math.cos(radians) * radius
+  const y = Math.sin(radians) * radius
+  
+  return {
+    left: '50%',
+    top: '50%',
+    transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`
+  }
+}
 
 // Format the display value intelligently based on unit type
 const formatValue = computed(() => {
@@ -188,15 +252,28 @@ const displayValue = computed(() => formatValue.value.formatted)
         </div>
 
       </div>
-               <div v-if="valuePosition === 'right'" class="knob-value" style="margin-left: 56px;">{{ displayValue }} {{ formatValue.unit }}</div>
+      <div v-if="valuePosition === 'left'" class="knob-value" style="margin-right: 56px;">{{ displayValue }} {{ formatValue.unit }}</div>
+      <div v-if="valuePosition === 'right'" class="knob-value" style="margin-left: 56px;">{{ displayValue }} {{ formatValue.unit }}</div>
 
+      <!-- Discrete values displayed around knob -->
+      <div v-if="isDiscrete" class="discrete-values-container">
+        <div 
+          v-for="(value, index) in values" 
+          :key="index"
+          class="discrete-value"
+          :class="{ active: index === discreteIndex }"
+          :style="getDiscreteValuePosition(index)"
+        >
+          {{ value }}
+        </div>
+      </div>
     </div>
     
     <!-- Label -->
     <div v-if="label" class="knob-label">{{ label }}</div>
     
     <!-- Value display -->
-    <div v-if="valuePosition !== 'hidden' &&   valuePosition !== 'right'" class="knob-value">{{ displayValue }}
+    <div v-if="valuePosition !== 'hidden' && valuePosition !== 'left' && valuePosition !== 'right'" class="knob-value">{{ displayValue }}
       <span v-if="unit" class="knob-unit">{{ formatValue.unit }}</span>
 
     </div>
@@ -336,5 +413,32 @@ const displayValue = computed(() => formatValue.value.formatted)
   color: var(--text-dim);
   font-family: 'Courier New', monospace;
   text-align: center;
+}
+
+/* Discrete Values Around Knob */
+.discrete-values-container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.discrete-value {
+  position: absolute;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.15s ease;
+}
+
+.discrete-value.active {
+  color: var(--primary-cyan);
+  text-shadow: 0 0 8px var(--cyan-glow);
+  font-weight: 700;
 }
 </style>

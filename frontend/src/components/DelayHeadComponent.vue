@@ -19,7 +19,9 @@ const getParam = (suffix: string) => `${props.headName}_${suffix}`
 const bypass = computed(() => getToggle(getParam('ON')))
 const pan = computed(() => getSlider(getParam('PAN')))
 const feedback = computed(() => getSlider(getParam('FEEDBACK')))
+const timeNoSync = computed(() => getSlider(getParam('TIME_NO_SYNC')))
 const time = computed(() => getSlider(getParam('TIME')))
+const sync = computed(() => getToggle('SYNC_TEMPO'))
 
 const movementPeriodDuration = computed(() => getSlider(getParam('MOVEMENT_PERIOD_DURATION')))
 const gain = computed(() => getSlider(getParam('GAIN')))
@@ -33,6 +35,23 @@ const feedbackSlave = computed(() => getToggle(getParam('FEEDBACK_SLAVE')))
 const gainSlave = computed(() => getToggle(getParam('GAIN_  SLAVE')))
 const hpBp = computed(() => getToggle(getParam('HP_FILTER_BYPASS')))
 const lpBp = computed(() => getToggle(getParam('LP_FILTER_BYPASS')))
+
+// Time values for sync mode
+const syncTimeValues = ['1/64', '1/32T', '1/64D', '1/32', '1/16T', '1/32D', '1/16', '1/8T', '1/16D', '1/8', '1/4T', '1/8D', '1/4', '1/2T', '1/4D', '1/2', '1T', '1/2D', '1']
+
+// Convert normalized value to selected time value
+const selectedTimeValue = computed(() => {
+  const index = Math.round(time.value.state.normalised * (syncTimeValues.length - 1))
+  return syncTimeValues[Math.max(0, Math.min(syncTimeValues.length - 1, index))]
+})
+
+// Set time from selected value
+const setTimeValue = (value: string) => {
+  const index = syncTimeValues.indexOf(value)
+  if (index !== -1) {
+    time.value.setNormalisedValue(index / (syncTimeValues.length - 1))
+  }
+}
 
 // Frequency mapping constants
 const MIN_FREQ = 20
@@ -105,14 +124,27 @@ const paramNormalizedToSliderPosition = (paramNormalized: number): number => {
         unit="%"
       />
       <RotaryKnob
-        :model-value="time.state.normalised"
-        @update:model-value="time.setNormalisedValue"
+        v-if="!sync.isActive()"  
+        :model-value="timeNoSync.state.normalised"
+        @update:model-value="timeNoSync.setNormalisedValue"
         label="Time"
         size="small"
         :min="0"
         :max="4"
         unit="s"
       />
+      <div v-if="sync.isActive()" class="time-selector-wrapper">
+        <label class="time-selector-label">Time</label>
+        <select 
+          class="time-selector"
+          :value="selectedTimeValue"
+          @change="e => setTimeValue((e.target as HTMLSelectElement).value)"
+        >
+          <option v-for="val in syncTimeValues" :key="val" :value="val">
+            {{ val }}
+          </option>
+        </select>
+      </div>
     </div>
 
     <!-- Gain - Knob -->
@@ -607,5 +639,54 @@ label {
   text-align: center;
   font-weight: 600;
   font-family: 'Courier New', monospace;
+}
+
+/* Time Selector */
+.time-selector-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.time-selector-label {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.time-selector {
+  padding: 6px 8px;
+  font-size: 9px;
+  font-weight: 600;
+  background: var(--metal-dark);
+  border: 1px solid rgba(74, 158, 255, 0.3);
+  border-radius: 3px;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  appearance: none;
+  text-align: center;
+  min-width: 60px;
+}
+
+.time-selector:hover {
+  border-color: var(--primary-cyan);
+  box-shadow: 0 0 6px rgba(0, 212, 255, 0.3);
+}
+
+.time-selector:focus {
+  outline: none;
+  border-color: var(--primary-cyan);
+  box-shadow: 
+    0 0 6px rgba(0, 212, 255, 0.3),
+    inset 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.time-selector option {
+  background: var(--metal-medium);
+  color: var(--text-primary);
 }
 </style>

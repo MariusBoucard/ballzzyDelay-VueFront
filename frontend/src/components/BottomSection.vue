@@ -2,6 +2,8 @@
 import { useJuce } from '@/composables/useJuce'
 import { computed, ref } from 'vue'
 import RotaryKnob from './RotaryKnob.vue'
+import DuckingComponent from './DuckingComponent.vue'
+import BpmComponent from './BpmComponent.vue'
 
 const { getSlider, getToggle } = useJuce()
 
@@ -18,14 +20,11 @@ const globalMix = computed(() => getSlider('MIX'))
 const globalLpFilter = computed(() => getSlider('LP_FILTER_FREQ'))
 const globalHpFilter = computed(() => getSlider('HP_FILTER_FREQ'))
 
-// Ducking controls
-const ducking = computed(() => getToggle('DUCKING'))
-const duckingAttack = computed(() => getSlider('DUCKING_ATTACK'))
-const duckingRelease = computed(() => getSlider('DUCKING_RELEASE'))
-const duckingThreshold = computed(() => getSlider('DUCKING_THRESHOLD'))
-const duckingRatio = computed(() => getSlider('DUCKING_RATIO'))
-
 const selectedMode = ref('normal')
+
+// Filter bypass toggles
+const lpFilterBypass = computed(() => getToggle('LP_FILTER_BYPASS'))
+const hpFilterBypass = computed(() => getToggle('HP_FILTER_BYPASS'))
 
 const setMode = (mode: string) => {
   selectedMode.value = mode
@@ -45,6 +44,11 @@ const setMode = (mode: string) => {
         />
         <span>SYNC</span>
       </label>
+    </div>
+
+    <!-- BPM Component (right of SYNC toggle) -->
+    <div class="control-group bpm-group">
+      <BpmComponent />
     </div>
 
     <div class="control-group">
@@ -96,89 +100,50 @@ const setMode = (mode: string) => {
 
     <!-- LP & HP Filter Stacked -->
     <div class="control-group stacked-group">
-      <RotaryKnob
-        :model-value="globalLpFilter.state.normalised"
-        @update:model-value="globalLpFilter.setNormalisedValue"
-        label="LP Filter"
-        size="small"
-        :min="20"
-        :max="20000"
-        unit="Hz"
-                value-position="right"
-      />
-      <RotaryKnob
-        :model-value="globalHpFilter.state.normalised"
-        @update:model-value="globalHpFilter.setNormalisedValue"
-        label="HP Filter"
-        :min="20"
-        :max="20000"
-        size="small"
-        unit="Hz"
-        value-position="right"
-      />
-    </div>
-
-    <!-- Ducking Card: Toggle + 3 Rotary Knobs -->
-    <div class="ducking-card">
-      <div class="ducking-header">
-        <label class="ducking-toggle-label">
-        <input 
+      <div class="filter-control-wrapper">
+        <RotaryKnob
+          :model-value="globalLpFilter.state.normalised"
+          @update:model-value="globalLpFilter.setNormalisedValue"
+          label="LP Filter"
+          size="small"
+          :min="20"
+          :max="20000"
+          unit="Hz"
+          value-position="right"
+        />
+        <label class="filter-bypass-toggle">
+          <input 
             type="checkbox" 
-            class="ducking-toggle"
-            :checked="ducking.isActive()" 
-            @change="e => ducking.setAct((e.target as HTMLInputElement).checked ? 1 : 0)"
+            class="bypass-checkbox"
+            :checked="lpFilterBypass.isActive()" 
+            @change="e => lpFilterBypass.toggle((e.target as HTMLInputElement).checked)"
           />
-          <span>DUCKING</span>
         </label>
       </div>
-      
-      <div class="ducking-knobs">
-        <div>
-       <RotaryKnob
-          :model-value="duckingRatio.state.normalised"
-          @update:model-value="duckingRatio.setNormalisedValue"
-          label="Ratio"
-          size="small"
-          :min="1"
-          :max="20"
-          unit="1:"
-          value-position="right"
-        />
+      <div class="filter-control-wrapper">
         <RotaryKnob
-          :model-value="duckingAttack.state.normalised"
-          @update:model-value="duckingAttack.setNormalisedValue"
-          label="Attack"
+          :model-value="globalHpFilter.state.normalised"
+          @update:model-value="globalHpFilter.setNormalisedValue"
+          label="HP Filter"
+          :min="20"
+          :max="20000"
           size="small"
-          :min="0"
-          :max="500"
-          unit="ms"
+          unit="Hz"
           value-position="right"
         />
-        </div>
-<div>
-        <RotaryKnob
-          :model-value="duckingRelease.state.normalised"
-          @update:model-value="duckingRelease.setNormalisedValue"
-          label="Release"
-          size="small"
-          value-position="right"
-          :min="5"
-          :max="2000"
-          unit="ms"
-        />
-        <RotaryKnob
-          :model-value="duckingThreshold.state.normalised"
-          @update:model-value="duckingThreshold.setNormalisedValue"
-          label="Threshold"
-          size="small"
-          value-position="right"
-          :min="-60"
-          :max="0"
-          unit="dB"
-        />
-      </div>
+        <label class="filter-bypass-toggle">
+          <input 
+            type="checkbox" 
+            class="bypass-checkbox"
+            :checked="hpFilterBypass.isActive()" 
+            @change="e => hpFilterBypass.toggle((e.target as HTMLInputElement).checked)"
+          />
+        </label>
       </div>
     </div>
+
+    <!-- Ducking Component -->
+    <DuckingComponent />
 
     <!-- Right: Mode Selection (3D Radio Buttons) -->
     <div class="control-group mode-group">
@@ -256,6 +221,11 @@ const setMode = (mode: string) => {
   min-width: 60px;
 }
 
+.bpm-group {
+  flex: 0.9;
+  min-width: 80px;
+}
+
 .stacked-group {
   display: flex;
   flex-direction: column;
@@ -263,6 +233,52 @@ const setMode = (mode: string) => {
   flex: 1;
   align-items: center;
   justify-content: center;
+}
+
+.filter-control-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  width: 100%;
+  position: relative;
+}
+
+.filter-bypass-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  cursor: pointer;
+  user-select: none;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  margin: 0;
+}
+
+.bypass-checkbox {
+  appearance: none;
+  width: 10px;
+  height: 10px;
+  border: 1px solid rgba(74, 158, 255, 0.5);
+  border-radius: 2px;
+  background: var(--metal-dark);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.bypass-checkbox:hover {
+  border-color: var(--primary-cyan);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4), 0 0 4px rgba(0, 212, 255, 0.3);
+}
+
+.bypass-checkbox:checked {
+  background: linear-gradient(135deg, var(--primary-blue), var(--primary-cyan));
+  border-color: var(--primary-cyan);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3), 0 0 6px var(--cyan-glow);
 }
 
 .mix-group {
@@ -414,132 +430,5 @@ const setMode = (mode: string) => {
   box-shadow: 
     0 1px 0 var(--metal-dark),
     inset 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-
-/* Ducking 3D Card */
-.ducking-card {
-  display: flex;
-  width: 100%;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin-right: 10px ;
-  gap: 6px;
-  flex: 2;
-  height: 100%;
-  padding: 8px 12px;
-  background: linear-gradient(135deg, rgba(74, 158, 255, 0.15) 0%, rgba(0, 212, 255, 0.08) 100%);
-  border: 1px solid rgba(74, 158, 255, 0.3);
-  border-radius: 8px;
-  box-shadow: 
-    0 8px 16px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 0 20px rgba(74, 158, 255, 0.2);
-  position: relative;
-  overflow: hidden;
-}
-
-.ducking-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, transparent 0%, rgba(0, 212, 255, 0.05) 100%);
-  pointer-events: none;
-}
-
-.ducking-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1;
-}
-
-.ducking-toggle-label {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  cursor: pointer;
-  font-size: 8px;
-  font-weight: 700;
-  color: var(--text-secondary);
-  user-select: none;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.ducking-toggle-label:hover {
-  color: var(--primary-cyan);
-}
-
-.ducking-toggle {
-  appearance: none;
-  width: 40px;
-  height: 20px;
-  background: var(--metal-dark);
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  cursor: pointer;
-  position: relative;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 
-    inset 0 2px 4px rgba(0, 0, 0, 0.5),
-    0 0 8px rgba(0, 0, 0, 0.3);
-}
-
-.ducking-toggle::before {
-  content: '';
-  position: absolute;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  top: 2px;
-  left: 2px;
-  background: linear-gradient(145deg, var(--metal-lighter), var(--metal-light));
-  box-shadow: 
-    0 2px 4px rgba(0, 0, 0, 0.3),
-    0 0 0 1px rgba(255, 255, 255, 0.1);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.ducking-toggle:checked {
-  background: linear-gradient(90deg, var(--primary-blue), var(--primary-cyan));
-  border-color: var(--primary-cyan);
-  box-shadow: 
-    inset 0 2px 4px rgba(0, 0, 0, 0.3),
-    0 0 12px var(--blue-glow);
-}
-
-.ducking-toggle:checked::before {
-  left: 22px;
-  background: linear-gradient(145deg, #ffffff, #e8eaed);
-  box-shadow: 
-    0 2px 6px rgba(0, 0, 0, 0.4),
-    0 0 8px rgba(0, 212, 255, 0.6);
-}
-
-.ducking-toggle:hover:not(:checked)::before {
-  background: linear-gradient(145deg, var(--metal-lighter), var(--metal-medium));
-}
-
-.ducking-knobs {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  justify-content: center;
-  z-index: 1;
-  flex: 1;
-  width: 100%;
-}
-
-.ducking-knobs > div {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
 }
 </style>
