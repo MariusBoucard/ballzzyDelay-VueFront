@@ -32,7 +32,6 @@ const hpFilterFreq = computed(() => getSlider(getParam('HP_FILTER_FREQ')))
 const movementOn = computed(() => getToggle(getParam('MOVEMENT_ON')))
 const movementWidthSlave = computed(() => getToggle(getParam('MOVEMENT_WIDTH_SLAVE')))
 const feedbackSlave = computed(() => getToggle(getParam('FEEDBACK_SLAVE')))
-const gainSlave = computed(() => getToggle(getParam('GAIN_  SLAVE')))
 const hpBp = computed(() => getToggle(getParam('HP_FILTER_BYPASS')))
 const lpBp = computed(() => getToggle(getParam('LP_FILTER_BYPASS')))
 
@@ -114,15 +113,25 @@ const paramNormalizedToSliderPosition = (paramNormalized: number): number => {
 
     <!-- Feedback and Time - Knobs Side by Side -->
     <div class="section split-section">
-      <RotaryKnob
-        :model-value="feedback.state.normalised"
-        @update:model-value="feedback.setNormalisedValue"
-        label="Feedback"
-        size="small"
-        :min="0"
-        :max="95"
-        unit="%"
-      />
+      <div class="feedback-wrapper">
+        <RotaryKnob
+          :model-value="feedback.state.normalised"
+          @update:model-value="feedback.setNormalisedValue"
+          label="Feedback"
+          size="small"
+          :min="0"
+          :max="95"
+          unit="%"
+        />
+        <label class="feedback-slave-checkbox">
+          <input 
+            type="checkbox" 
+            :checked="feedbackSlave.isActive()" 
+            @change="e => feedbackSlave.toggle((e.target as HTMLInputElement).checked)"
+          />
+          <span class="checkbox-label">Slave</span>
+        </label>
+      </div>
       <RotaryKnob
         v-if="!sync.isActive()"  
         :model-value="timeNoSync.state.normalised"
@@ -349,6 +358,71 @@ const paramNormalizedToSliderPosition = (paramNormalized: number): number => {
   transform: translateX(-10px) translateY(-15px);
   align-items: center;
   justify-items: center;
+}
+
+.feedback-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.feedback-slave-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  font-size: 8px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  user-select: none;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: color 0.2s ease;
+}
+
+.feedback-slave-checkbox:hover {
+  color: var(--text-primary);
+}
+
+.feedback-slave-checkbox input {
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  background: var(--metal-dark);
+  border: 1px solid rgba(74, 158, 255, 0.4);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.feedback-slave-checkbox input:hover {
+  border-color: var(--primary-cyan);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4), 0 0 4px rgba(0, 212, 255, 0.3);
+}
+
+.feedback-slave-checkbox input:checked {
+  background: linear-gradient(135deg, var(--primary-blue), var(--primary-cyan));
+  border-color: var(--primary-cyan);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3), 0 0 6px var(--cyan-glow);
+}
+
+.feedback-slave-checkbox input:checked::after {
+  content: '✓';
+  position: absolute;
+  color: white;
+  font-size: 8px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.checkbox-label {
+  white-space: nowrap;
 }
 
 /* ============================================
